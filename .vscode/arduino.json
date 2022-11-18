@@ -1,0 +1,7 @@
+{
+    "sketch": "shroomly.ino",
+    "board": "esp32:esp32:adafruit_metro_esp32s2",
+    "port": "/dev/tty.usbmodem1101",
+    "configuration": "CDCOnBoot=cdc,MSCOnBoot=default,DFUOnBoot=default,UploadMode=cdc,PSRAM=enabled,PartitionScheme=tinyuf2,CPUFreq=240,FlashMode=qio,FlashFreq=80,FlashSize=4M,UploadSpeed=921600,DebugLevel=none,EraseFlash=none",
+    "output": "../ArduinoOutput"
+}
