@@ -18,10 +18,17 @@ public:
   int getRSSI();
   int getRSSI(int n);
   int getStatus();
+
   int scanNetworks();
+  int scanNetworks(bool async);
+  int scanComplete();
+  void scanDelete();
+  int getChannel(int n);
+  int getEncryptionType(int n);
 
   String getSSID();
   String getSSID(int n);
+  String getBSSIDstr(int n);
   IPAddress getLocalIp();
 };
 

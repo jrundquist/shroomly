@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../core/storage.h"
-#include <WiFi.h>
+#include "../core/wifi.h"
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 
@@ -12,6 +12,7 @@ public:
 
 private:
   static void handleSetup(AsyncWebServerRequest *request);
+  static void handleScanNetworks(AsyncWebServerRequest *request);
 };
 
 extern Http http;

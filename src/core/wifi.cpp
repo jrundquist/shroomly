@@ -23,6 +23,9 @@ void Wifi::startAP()
   Serial.println("Started access point.");
   Serial.print("Ip: ");
   Serial.println(WiFi.softAPIP());
+  Serial.print("Starting initial scan... ");
+  WiFi.scanNetworks(true);
+  Serial.println("OK");
 }
 
 void Wifi::stopAP()
@@ -72,6 +75,31 @@ int Wifi::scanNetworks()
   return WiFi.scanNetworks();
 }
 
+int Wifi::scanNetworks(bool async)
+{
+  return WiFi.scanNetworks(async);
+}
+
+int Wifi::scanComplete()
+{
+  return WiFi.scanComplete();
+}
+
+void Wifi::scanDelete()
+{
+  WiFi.scanDelete();
+}
+
+int Wifi::getChannel(int n)
+{
+  return WiFi.channel(n);
+}
+
+int Wifi::getEncryptionType(int n)
+{
+  return WiFi.encryptionType(n);
+}
+
 String Wifi::getSSID()
 {
   return WiFi.SSID();
@@ -80,6 +108,11 @@ String Wifi::getSSID()
 String Wifi::getSSID(int n)
 {
   return WiFi.SSID(n);
+}
+
+String Wifi::getBSSIDstr(int n)
+{
+  return WiFi.BSSIDstr(n);
 }
 
 IPAddress Wifi::getLocalIp()
