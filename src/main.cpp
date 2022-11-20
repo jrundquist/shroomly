@@ -1,33 +1,74 @@
-#include <Adafruit_AW9523.h>
+#include "main.h"
 
-Adafruit_AW9523 aw;
-
-uint8_t LedPin = 1; // 0 thru 15
+bool setupComplete = false;
 
 void setup()
 {
+
   Serial.begin(115200);
-  while (!Serial)
-    delay(1); // wait for serial port to open
+  delay(3000);
+  Serial.println();
 
-  Serial.println("Adafruit AW9523 Constant Current LED test!");
+  Serial.println("statusPixel init");
+  statusPixel.init();
+  statusPixel.pixelWrite(colors::ORANGE);
+  Serial.println("storage init");
+  storage.init();
+  Serial.println("Lighting init");
+  lighting.init();
+  Serial.println("wifi init");
+  wifi.init();
 
-  if (!aw.begin(0x58))
+  Serial.println("config init");
+  config.init();
+
+  if (!config.hasWifiCredentials())
   {
-    Serial.println("AW9523 not found? Check wiring!");
-    while (1)
-      delay(10); // halt forever
+    Serial.println("No wifi creds. Starting Access point.");
+    statusPixel.pixelWrite(colors::BLUE);
+    wifi.startAP();
+    Serial.print("Access Point: ");
+    Serial.println(AP_SSID);
+  }
+  else
+  {
+    Serial.println("WiFi creds found.");
+    auto creds = config.getWifiCredentials();
+    wifi.connect(creds.first, creds.second);
+
+    if (wifi.getStatus() == WL_CONNECTED)
+    {
+      Serial.println("Wifi Connected.");
+      statusPixel.pixelWrite(colors::GREEN);
+      Serial.print("\tConnected to: ");
+      Serial.println(wifi.getSSID());
+      Serial.print("\tIP: ");
+      Serial.println(wifi.getLocalIp());
+      setupComplete = true;
+    }
+    else
+    {
+      Serial.println("Wifi Creds didn't work?");
+      Serial.println("Clearing credentials and restarting....");
+      config.clearWifiCredentials();
+      ESP.restart();
+    }
   }
 
-  Serial.println("AW9523 found!");
-  aw.pinMode(LedPin, AW9523_LED_MODE); // set to constant current drive!
+  Serial.println("http init");
+  http.init();
 }
 
-uint8_t x = 0;
+auto nextWifiUpdate = millis();
 
 void loop()
 {
-  // Loop from 0 to 255 and then wrap around to 0 again
-  aw.analogWrite(LedPin, x++);
-  delay(10);
+  if (setupComplete && millis() > nextWifiUpdate)
+  {
+    nextWifiUpdate += WIFI_STATUS_INTERVAL;
+    float quality = wifi.getQuality();
+    Serial.print("Quality: ");
+    Serial.println(quality);
+    statusPixel.pixelBrightness(colors::GREEN, quality);
+  }
 }
