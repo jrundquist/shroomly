@@ -9,6 +9,7 @@ class StatusPixel
 public:
   void init();
   void pixelWrite(const int *color);
+  void pixelBrightness(const int *color, float brightness);
   void pixelFlash(const int *color);
 };
 

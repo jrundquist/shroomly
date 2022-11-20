@@ -1,5 +1,7 @@
 #include "main.h"
 
+bool setupComplete = false;
+
 void setup()
 {
 
@@ -40,6 +42,7 @@ void setup()
       Serial.println(wifi.getSSID());
       Serial.print("\tIP: ");
       Serial.println(wifi.getLocalIp());
+      setupComplete = true;
     }
     else
     {
@@ -56,4 +59,21 @@ void setup()
 
 void loop()
 {
+  if (setupComplete)
+  {
+    delay(1000);
+    float quality = 0;
+    int dBm = wifi.getRSSI();
+    // dBm to Quality:
+    if (dBm <= -100)
+      quality = 0.0;
+    else if (dBm >= -50)
+      quality = 1.0;
+    else
+      quality = (2 * (dBm + 100)) / 100.0;
+
+    Serial.print("Quality: ");
+    Serial.println(quality);
+    statusPixel.pixelBrightness(colors::GREEN, quality);
+  }
 }

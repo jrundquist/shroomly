@@ -20,6 +20,15 @@ void StatusPixel::pixelWrite(const int *color)
   metroPixel.show();
 }
 
+/// @brief  Sets the pixel to a given color
+/// @param color
+void StatusPixel::pixelBrightness(const int *color, float brightness)
+{
+  metroPixel.setPixelColor(0, metroPixel.Color(color[0] * brightness, color[1] * brightness, color[2] * brightness));
+  // write the pixel color to the Metro's Neopixel
+  metroPixel.show();
+}
+
 /// @brief Flashes the neopixel on and off rapidly
 /// @param color
 void StatusPixel::pixelFlash(const int *color)
