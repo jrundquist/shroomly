@@ -42,11 +42,45 @@ void Http::handleScanNetworks(AsyncWebServerRequest *request)
   json = String();
 }
 
+void Http::handleSetNetwork(AsyncWebServerRequest *request)
+{
+  String ssid = request->arg("ssid");
+  String pass = request->arg("pass");
+
+  ssid.trim();
+  pass.trim();
+
+  bool valid = pass.length() > 0 && ssid.length() > 0;
+  if (!valid)
+  {
+    return request->send(400, "application/json", "{}");
+  }
+
+  auto existingCreds = config.getWifiCredentials();
+  if (existingCreds.first == ssid && existingCreds.second == pass)
+  {
+    return request->send(200, "application/json", "{\"res\":\"Creds set\"}");
+  }
+
+  config.setWifiCredentials(ssid.c_str(), pass.c_str());
+  statusPixel.pixelFlash(colors::GREEN);
+  ESP.restart();
+}
+
+void Http::handleReset(AsyncWebServerRequest *request)
+{
+  request->send(200, "application/json", "{}");
+  config.clear();
+  ESP.restart();
+}
+
 void Http::init()
 {
   // Web Server Root URL
   server.on("/", HTTP_GET, Http::handleSetup);
   server.on("/scanNetworks", HTTP_GET, Http::handleScanNetworks);
+  server.on("/setNetwork", HTTP_GET, Http::handleSetNetwork);
+  server.on("/reset", HTTP_GET, Http::handleReset);
 
   server.serveStatic("/", LittleFS, "/");
 

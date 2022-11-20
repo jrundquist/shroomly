@@ -1,4 +1,4 @@
-#import "./status_pixel.h"
+#include "./status_pixel.h"
 
 StatusPixel statusPixel;
 

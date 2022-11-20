@@ -43,6 +43,14 @@ void Wifi::stopAP()
 
 void Wifi::connect(String ssid, String pass)
 {
+  // Connect to WPA/WPA2 network:
+  auto status = WiFi.begin(ssid.c_str(), pass.c_str());
+  int attempts = 20;
+  do
+  {
+    delay(1000);
+    status = WiFi.status();
+  } while (((status == WL_IDLE_STATUS) || (status == WL_SCAN_COMPLETED)) && (--attempts > 0));
 }
 
 void Wifi::disconnect()

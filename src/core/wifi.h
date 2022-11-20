@@ -4,6 +4,7 @@
 
 #include <WiFi.h>
 #include "../include/common.h"
+#include "../core/status_pixel.h"
 
 class Wifi
 {

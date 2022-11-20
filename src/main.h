@@ -6,6 +6,7 @@
 #include "core/http.h"
 #include "core/storage.h"
 #include "core/wifi.h"
+#include "core/config.h"
 
 #include <Arduino.h>
 
