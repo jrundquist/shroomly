@@ -78,6 +78,17 @@ int Wifi::getRSSI(int n)
   return WiFi.RSSI(n);
 }
 
+float Wifi::getQuality()
+{
+  int dBm = wifi.getRSSI();
+  if (dBm <= -100)
+    return 0.0;
+  else if (dBm >= -50)
+    return 1.0;
+  else
+    return (2 * (dBm + 100)) / 100.0;
+}
+
 int Wifi::scanNetworks()
 {
   return WiFi.scanNetworks();

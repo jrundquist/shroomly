@@ -18,6 +18,7 @@ public:
   int getMode();
   int getRSSI();
   int getRSSI(int n);
+  float getQuality();
   int getStatus();
 
   int scanNetworks();
