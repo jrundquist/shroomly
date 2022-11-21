@@ -2,6 +2,8 @@
 
 #include "stddef.h"
 
+#define NTP_SERVER "pool.ntp.org"
+
 #define HOSTNAME "SHROOMLY"
 #define AP_PASS NULL
 #define AP_SSID HOSTNAME

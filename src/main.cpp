@@ -49,6 +49,15 @@ void setup()
       Serial.println(wifi.getSSID());
       Serial.print("\tIP: ");
       Serial.println(wifi.getLocalIp());
+
+      // init and get the time
+      configTime(3600 * -7, 0, NTP_SERVER);
+      struct tm timeinfo;
+      if (!getLocalTime(&timeinfo))
+        Serial.println("Failed to obtain time");
+      else
+        Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
+
       setupComplete = true;
     }
     else
@@ -63,8 +72,6 @@ void setup()
   Serial.println("http init");
   http.init();
 }
-
-auto nextWifiUpdate = millis();
 
 void loop()
 {
