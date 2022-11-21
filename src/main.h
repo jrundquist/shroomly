@@ -10,6 +10,7 @@
 #include "core/config.h"
 #include "core/lighting.h"
 #include "core/camera.h"
+#include "core/environment.h"
 
 #define DEBUG
 #define WIFI_STATUS_INTERVAL 30000

@@ -16,6 +16,8 @@ void setup()
   storage.init();
   Serial.println("Lighting init");
   lighting.init();
+  Serial.println("environment");
+  environment.init();
   Serial.println("wifi init");
   wifi.init();
 
@@ -66,6 +68,7 @@ auto nextWifiUpdate = millis();
 
 void loop()
 {
+  environment.loop();
   if (http.requestCameraImage)
   {
     camera.takePhoto("/temp.jpg");

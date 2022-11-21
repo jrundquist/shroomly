@@ -5,8 +5,10 @@
 #include "../core/wifi.h"
 #include "../core/config.h"
 #include "../core/camera.h"
+#include "../core/environment.h"
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
+#include <ArduinoJson.h>
 
 class Http
 {
@@ -20,6 +22,7 @@ private:
   static void handleSetNetwork(AsyncWebServerRequest *request);
   static void handleReset(AsyncWebServerRequest *request);
   static void handleTakePhoto(AsyncWebServerRequest *request);
+  static void handleGetSensorReadings(AsyncWebServerRequest *request);
 };
 
 extern Http http;
