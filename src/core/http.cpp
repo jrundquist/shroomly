@@ -74,6 +74,32 @@ void Http::handleReset(AsyncWebServerRequest *request)
   ESP.restart();
 }
 
+void Http::handleTakePhoto(AsyncWebServerRequest *request)
+{
+  if (http.requestCameraImage == false)
+  {
+    http.requestCameraImage = true;
+  }
+  // AsyncWebServerResponse *response = request->beginResponse(LittleFS, "/temp.jpg", "image/jpeg");
+
+  // AsyncWebServerResponse *response = request->beginChunkedResponse("image/jpeg", [photo](uint8_t *buffer, size_t maxLen, size_t index) -> size_t
+  //                                                                  {
+  //   // Write up to "maxLen" bytes into "buffer" and return the amount written.
+  //   // index equals the amount of bytes that have been already sent
+  //   // You will be asked for more data until 0 is returned
+  //   // Keep in mind that you can not delay or yield waiting for more data!
+  //   //  Read all the data up to # bytes!
+  //   if (index >= photo.first)
+  //   {
+  //     return 0;
+  //   }
+  //   uint8_t bytesToRead = std::min(maxLen, photo.first - index);
+  //   buffer = photo.second(bytesToRead);
+  //   return bytesToRead; });
+  // response->addHeader("Server", "ESP Async Web Server");
+  request->send(200, "application/json", "{}");
+}
+
 void Http::init()
 {
   // Web Server Root URL
@@ -81,6 +107,7 @@ void Http::init()
   server.on("/scanNetworks", HTTP_GET, Http::handleScanNetworks);
   server.on("/setNetwork", HTTP_GET, Http::handleSetNetwork);
   server.on("/reset", HTTP_GET, Http::handleReset);
+  server.on("/takePhoto", HTTP_GET, Http::handleTakePhoto);
 
   server.serveStatic("/", LittleFS, "/");
 

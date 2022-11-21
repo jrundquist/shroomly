@@ -1,13 +1,13 @@
 #include "./lighting.h"
 
-Adafruit_AW9523 board;
+Adafruit_AW9523 aw;
 
 Lighting lighting;
 
 void Lighting::init()
 {
 
-  if (!board.begin(0x58))
+  if (!aw.begin(0x58))
   {
     Serial.println("AW9523 not found? Check wiring!");
     while (1)
@@ -15,11 +15,11 @@ void Lighting::init()
   }
 
   Serial.println("AW9523 found!");
-  board.pinMode(GROW_LIGHT_PIN, AW9523_LED_MODE);
-  this->setGrowLightBrightness(250);
+  aw.pinMode(GROW_LIGHT_PIN, AW9523_LED_MODE);
+  this->setGrowLightBrightness(255);
 }
 
 void Lighting::setGrowLightBrightness(uint8_t brightness)
 {
-  board.analogWrite(GROW_LIGHT_PIN, brightness);
+  aw.analogWrite(GROW_LIGHT_PIN, brightness);
 }

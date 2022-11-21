@@ -22,6 +22,9 @@ void setup()
   Serial.println("config init");
   config.init();
 
+  Serial.println("camera init");
+  camera.init();
+
   if (!config.hasWifiCredentials())
   {
     Serial.println("No wifi creds. Starting Access point.");
@@ -63,12 +66,9 @@ auto nextWifiUpdate = millis();
 
 void loop()
 {
-  if (setupComplete && millis() > nextWifiUpdate)
+  if (http.requestCameraImage)
   {
-    nextWifiUpdate += WIFI_STATUS_INTERVAL;
-    float quality = wifi.getQuality();
-    Serial.print("Quality: ");
-    Serial.println(quality);
-    statusPixel.pixelBrightness(colors::GREEN, quality);
+    camera.takePhoto("/temp.jpg");
+    http.requestCameraImage = false;
   }
 }

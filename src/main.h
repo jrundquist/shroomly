@@ -9,9 +9,10 @@
 #include "core/wifi.h"
 #include "core/config.h"
 #include "core/lighting.h"
+#include "core/camera.h"
 
 #define DEBUG
-#define WIFI_STATUS_INTERVAL 1000
+#define WIFI_STATUS_INTERVAL 30000
 
 void setup();
 void loop();
