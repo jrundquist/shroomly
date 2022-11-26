@@ -6,8 +6,11 @@ void setup()
 {
 
   Serial.begin(115200);
-  delay(3000);
+  delay(1000);
   Serial.println();
+
+  Serial.println("Display Init");
+  display.init();
 
   Serial.println("statusPixel init");
   statusPixel.init();
@@ -76,6 +79,7 @@ void setup()
 void loop()
 {
   environment.loop();
+  display.showEnviroment(environment);
   if (http.requestCameraImage)
   {
     camera.takePhoto("/temp.jpg");

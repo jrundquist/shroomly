@@ -4,9 +4,8 @@
 #include <Arduino.h>
 #include <Wire.h>
 #include <SPI.h>
-#include <Adafruit_AW9523.h>
 
-#define GROW_LIGHT_PIN 1
+#define GROW_LIGHT_PIN A5
 
 class Lighting
 {
