@@ -15,6 +15,16 @@ void Environment::init()
   Serial.print("Measurement Interval: ");
   Serial.print(scd30.getMeasurementInterval());
   Serial.println(" seconds");
+
+  Serial.print("Looking for water Sesnor...");
+  if (!waterLevel.begin())
+  {
+    Serial.println(" NOT OK !");
+  }
+  else
+  {
+    Serial.println("OK");
+  }
 }
 
 void Environment::loop()
@@ -25,6 +35,12 @@ void Environment::loop()
     if (!scd30.read())
     {
       Serial.println("Error reading sensor data");
+      return;
+    }
+
+    if (!waterLevel.read())
+    {
+      Serial.println("Error reading water level");
       return;
     }
 
@@ -69,4 +85,9 @@ float Environment::getTempF()
 float Environment::getCO2()
 {
   return scd30.CO2;
+}
+
+uint32_t Environment::getWaterLevel()
+{
+  return waterLevel.level;
 }

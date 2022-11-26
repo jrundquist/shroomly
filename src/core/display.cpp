@@ -38,6 +38,12 @@ void Display::showEnviroment(Environment &env)
   canvas.print(env.getCO2());
   canvas.println("ppm");
 
+  canvas.setTextColor(ST77XX_BLUE);
+  canvas.print("Water Level: ");
+  canvas.setTextColor(ST77XX_WHITE);
+  canvas.print(env.getWaterLevel());
+  canvas.println("%");
+
   disp.drawRGBBitmap(0, 0, canvas.getBuffer(), 240, 135);
   display.turnOnBacklight();
 }
