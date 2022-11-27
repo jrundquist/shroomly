@@ -40,7 +40,6 @@ bool Aws::begin()
   while (!client.connect(THINGNAME))
   {
     Serial.print(".");
-    Serial.print(client.lastError());
     delay(100);
   }
 
@@ -51,7 +50,7 @@ bool Aws::begin()
   }
 
   // Subscribe to a topic
-  client.subscribe(AWS_IOT_SUBSCRIBE_TOPIC);
+  // client.subscribe(AWS_IOT_SUBSCRIBE_TOPIC);
   return true;
 };
 
@@ -66,6 +65,7 @@ void Aws::messageHandler(String &topic, String &payload)
 void Aws::publishMessage()
 {
 
+  Serial.print("Sending message: ");
   StaticJsonDocument<200> doc;
 
   doc["sample_time"] = getCurrentTime();
@@ -74,14 +74,16 @@ void Aws::publishMessage()
   char jsonBuffer[512];
   serializeJson(doc, jsonBuffer); // print to client
 
-  client.publish(AWS_IOT_SENSOR_PUBLISH_TOPIC, jsonBuffer);
+  auto res = client.publish(AWS_IOT_SENSOR_PUBLISH_TOPIC, jsonBuffer);
+  Serial.println(res);
 }
 
 void Aws::loop()
 {
+  client.loop();
   if (millis() > nextLoop)
   {
-    client.loop();
+    aws.publishMessage();
     nextLoop = millis() + LOOP_INTERVAL;
   }
 }
