@@ -7,7 +7,7 @@
   },
   "sortKey": {
     "fieldName": "device_id",
-    "fieldType": "number"
+    "fieldType": "string"
   },
   "gsi": [],
   "triggerFunctions": []
