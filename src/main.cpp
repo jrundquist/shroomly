@@ -61,13 +61,22 @@ void setup()
       else
         Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
 
+      Serial.print("Initializing AWS...");
+      if (!aws.begin())
+      {
+        Serial.println("FAILED");
+      }
+      else
+      {
+        Serial.println("OK");
+      }
       setupComplete = true;
     }
     else
     {
       Serial.println("Wifi Creds didn't work?");
       Serial.println("Clearing credentials and restarting....");
-      config.clearWifiCredentials();
+      // config.clearWifiCredentials();
       ESP.restart();
     }
   }
@@ -80,6 +89,7 @@ void loop()
 {
   environment.loop();
   display.showEnviroment(environment);
+  aws.loop();
   if (http.requestCameraImage)
   {
     camera.takePhoto("/temp.jpg");

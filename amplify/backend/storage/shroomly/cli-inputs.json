@@ -1,0 +1,14 @@
+{
+  "resourceName": "shroomly",
+  "tableName": "shroomly",
+  "partitionKey": {
+    "fieldName": "sample_time",
+    "fieldType": "number"
+  },
+  "sortKey": {
+    "fieldName": "device_id",
+    "fieldType": "number"
+  },
+  "gsi": [],
+  "triggerFunctions": []
+}

@@ -14,6 +14,7 @@
 #include "core/camera.h"
 #include "core/environment.h"
 #include "core/display.h"
+#include "core/aws.h"
 
 #define DEBUG
 #define WIFI_STATUS_INTERVAL 30000

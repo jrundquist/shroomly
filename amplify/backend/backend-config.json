@@ -1,0 +1,8 @@
+{
+  "storage": {
+    "shroomly": {
+      "service": "DynamoDB",
+      "providerPlugin": "awscloudformation"
+    }
+  }
+}

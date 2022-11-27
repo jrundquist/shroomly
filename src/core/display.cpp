@@ -20,6 +20,8 @@ void Display::init()
 
 void Display::showEnviroment(Environment &env)
 {
+#ifdef ARDUINO_ADAFRUIT_FEATHER_ESP32S2_TFT
+
   canvas.fillScreen(ST77XX_BLACK);
   canvas.setCursor(0, 18);
   canvas.setTextColor(ST77XX_YELLOW);
@@ -46,6 +48,7 @@ void Display::showEnviroment(Environment &env)
 
   disp.drawRGBBitmap(0, 0, canvas.getBuffer(), 240, 135);
   display.turnOnBacklight();
+#endif
 }
 
 void Display::turnOnBacklight()
