@@ -23,11 +23,17 @@ class Aws
 public:
   bool begin();
   void loop();
-  bool publishMessage();
+  bool publishMessage(JsonDocument const doc);
+
+  /// @brief Creates a new MQTT message (StaticJsonDocument) with standard header
+  //         information.
+  /// @tparam desiredCapacity
+  /// @return StaticJsonDocument<desiredCapacity>
+  template <size_t desiredCapacity>
+  StaticJsonDocument<desiredCapacity> createMessage();
 
 private:
-  void
-  messageHandler(String &topic, String &payload);
+  void messageHandler(String &topic, String &payload);
 };
 
 extern Aws aws;

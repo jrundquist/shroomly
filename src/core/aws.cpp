@@ -62,15 +62,10 @@ void Aws::messageHandler(String &topic, String &payload)
   //  const char* message = doc["message"];
 };
 
-/// @brief Creates a new MQTT message (StaticJsonDocument) with standard header
-//         information.
-/// @tparam desiredCapacity
-/// @return StaticJsonDocument<desiredCapacity>
 template <size_t desiredCapacity>
-StaticJsonDocument<desiredCapacity> createMessage()
+StaticJsonDocument<desiredCapacity> Aws::createMessage()
 {
   StaticJsonDocument<desiredCapacity> doc;
-
   doc["time"] = getCurrentTime();
   doc["device_id"] = deviceIdStr();
   doc["uptime"] = (int)(millis() / 1000);
@@ -79,10 +74,8 @@ StaticJsonDocument<desiredCapacity> createMessage()
   return doc;
 }
 
-bool Aws::publishMessage()
+bool Aws::publishMessage(JsonDocument const doc)
 {
-  auto doc = createMessage<256>();
-
   char jsonBuffer[512];
   serializeJson(doc, jsonBuffer); // print to client
 
@@ -92,9 +85,4 @@ bool Aws::publishMessage()
 void Aws::loop()
 {
   client.loop();
-  if (millis() > nextLoop)
-  {
-    aws.publishMessage();
-    nextLoop = millis() + LOOP_INTERVAL;
-  }
 }

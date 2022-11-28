@@ -43,19 +43,6 @@ void Environment::loop()
       Serial.println("Error reading water level");
       return;
     }
-
-    Serial.print("Temperature: ");
-    Serial.print(scd30.temperature);
-    Serial.println(" degrees C");
-
-    Serial.print("Relative Humidity: ");
-    Serial.print(scd30.relative_humidity);
-    Serial.println(" %");
-
-    Serial.print("CO2: ");
-    Serial.print(scd30.CO2, 3);
-    Serial.println(" ppm");
-    Serial.println("");
   }
 }
 
