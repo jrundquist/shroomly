@@ -62,10 +62,9 @@ void Aws::messageHandler(String &topic, String &payload)
   //  const char* message = doc["message"];
 };
 
-template <size_t desiredCapacity>
-StaticJsonDocument<desiredCapacity> Aws::createMessage()
+StaticJsonDocument<1024> Aws::createMessage()
 {
-  StaticJsonDocument<desiredCapacity> doc;
+  StaticJsonDocument<1024> doc;
   doc["time"] = getCurrentTime();
   doc["device_id"] = deviceIdStr();
   doc["uptime"] = (int)(millis() / 1000);
@@ -74,11 +73,10 @@ StaticJsonDocument<desiredCapacity> Aws::createMessage()
   return doc;
 }
 
-bool Aws::publishMessage(JsonDocument const doc)
+bool Aws::publishSensorMessage(StaticJsonDocument<1024> doc)
 {
-  char jsonBuffer[512];
+  char jsonBuffer[1024];
   serializeJson(doc, jsonBuffer); // print to client
-
   return client.publish(AWS_IOT_SENSOR_PUBLISH_TOPIC, jsonBuffer);
 }
 

@@ -23,14 +23,9 @@ class Aws
 public:
   bool begin();
   void loop();
-  bool publishMessage(JsonDocument const doc);
+  StaticJsonDocument<1024> createMessage();
 
-  /// @brief Creates a new MQTT message (StaticJsonDocument) with standard header
-  //         information.
-  /// @tparam desiredCapacity
-  /// @return StaticJsonDocument<desiredCapacity>
-  template <size_t desiredCapacity>
-  StaticJsonDocument<desiredCapacity> createMessage();
+  bool publishSensorMessage(StaticJsonDocument<1024> doc);
 
 private:
   void messageHandler(String &topic, String &payload);

@@ -1,15 +1,20 @@
 {
   "dev": {
     "awscloudformation": {
-      "AuthRoleName": "amplify-shroomly-dev-152404-authRole",
-      "UnauthRoleArn": "arn:aws:iam::117565975709:role/amplify-shroomly-dev-152404-unauthRole",
-      "AuthRoleArn": "arn:aws:iam::117565975709:role/amplify-shroomly-dev-152404-authRole",
+      "AuthRoleName": "amplify-shroomly-dev-172919-authRole",
+      "UnauthRoleArn": "arn:aws:iam::117565975709:role/amplify-shroomly-dev-172919-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::117565975709:role/amplify-shroomly-dev-172919-authRole",
       "Region": "us-west-1",
-      "DeploymentBucketName": "amplify-shroomly-dev-152404-deployment",
-      "UnauthRoleName": "amplify-shroomly-dev-152404-unauthRole",
-      "StackName": "amplify-shroomly-dev-152404",
-      "StackId": "arn:aws:cloudformation:us-west-1:117565975709:stack/amplify-shroomly-dev-152404/6b69abf0-6de1-11ed-9233-02f9412ea277",
+      "DeploymentBucketName": "amplify-shroomly-dev-172919-deployment",
+      "UnauthRoleName": "amplify-shroomly-dev-172919-unauthRole",
+      "StackName": "amplify-shroomly-dev-172919",
+      "StackId": "arn:aws:cloudformation:us-west-1:117565975709:stack/amplify-shroomly-dev-172919/1527cbb0-6ebc-11ed-a362-025906e9dbe1",
       "AmplifyAppId": "d29qir145c3ao"
+    },
+    "categories": {
+      "storage": {
+        "shroomly": {}
+      }
     }
   }
 }
