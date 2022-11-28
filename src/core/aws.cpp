@@ -62,20 +62,31 @@ void Aws::messageHandler(String &topic, String &payload)
   //  const char* message = doc["message"];
 };
 
-void Aws::publishMessage()
+/// @brief Creates a new MQTT message (StaticJsonDocument) with standard header
+//         information.
+/// @tparam desiredCapacity
+/// @return StaticJsonDocument<desiredCapacity>
+template <size_t desiredCapacity>
+StaticJsonDocument<desiredCapacity> createMessage()
 {
+  StaticJsonDocument<desiredCapacity> doc;
 
-  Serial.print("Sending message: ");
-  StaticJsonDocument<200> doc;
+  doc["time"] = getCurrentTime();
+  doc["device_id"] = deviceIdStr();
+  doc["uptime"] = (int)(millis() / 1000);
+  doc["rand_number"] = rand();
+  doc["wifi_rssi"] = wifi.getRSSI();
+  return doc;
+}
 
-  doc["sample_time"] = getCurrentTime();
-  doc["device_id"] = 1002;
-  doc["data_sensor"] = rand();
+bool Aws::publishMessage()
+{
+  auto doc = createMessage<256>();
+
   char jsonBuffer[512];
   serializeJson(doc, jsonBuffer); // print to client
 
-  auto res = client.publish(AWS_IOT_SENSOR_PUBLISH_TOPIC, jsonBuffer);
-  Serial.println(res);
+  return client.publish(AWS_IOT_SENSOR_PUBLISH_TOPIC, jsonBuffer);
 }
 
 void Aws::loop()

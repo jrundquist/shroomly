@@ -1,10 +1,13 @@
 #pragma once
 
 #include "time.h"
+#include <sys/time.h>
 #include <WiFiClientSecure.h>
 #include <MQTTClient.h>
 #include <ArduinoJson.h>
-#include "storage.h"
+#include "../core/wifi.h"
+#include "../core/storage.h"
+#include "../include/common.h"
 #include "../include/secrets.h"
 
 // The MQTT topics that this device should publish/subscribe
@@ -19,8 +22,8 @@ class Aws
 {
 public:
   bool begin();
-  void publishMessage();
   void loop();
+  bool publishMessage();
 
 private:
   void
