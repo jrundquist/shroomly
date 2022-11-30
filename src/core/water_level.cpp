@@ -11,14 +11,12 @@ bool WaterLevel::begin()
   if (Wire.endTransmission() != 0)
   {
     ok = false;
-    Serial.println("Did not find water sensor low addr!");
   }
 
   Wire.beginTransmission(ATTINY1_HIGH_ADDR);
   if (Wire.endTransmission() != 0)
   {
     ok = false;
-    Serial.println("Did not find water sensor high addr!");
   }
   return ok;
 }
