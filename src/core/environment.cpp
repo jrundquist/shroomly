@@ -21,12 +21,12 @@ void Environment::init()
   }
   else
   {
+    Serial.println("SCD30 Found!");
+    Serial.print("\tMeasurement Interval: ");
+    Serial.print(scd30.getMeasurementInterval());
+    Serial.println(" seconds");
     hasScd30 = true;
   }
-  Serial.println("SCD30 Found!");
-  Serial.print("Measurement Interval: ");
-  Serial.print(scd30.getMeasurementInterval());
-  Serial.println(" seconds");
 
   Serial.print("Looking for water Sesnor...");
   if (!waterLevel.begin())
