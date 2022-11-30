@@ -11,6 +11,7 @@ void setup()
 
   Serial.println("Display Init");
   display.init();
+  display.clear();
 
   Serial.println("statusPixel init");
   statusPixel.init();
