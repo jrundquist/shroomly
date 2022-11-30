@@ -16,12 +16,16 @@ void setup()
   Serial.println("statusPixel init");
   statusPixel.init();
   statusPixel.pixelWrite(colors::ORANGE);
+
   Serial.println("storage init");
   storage.init();
+
   Serial.println("Lighting init");
   lighting.init();
+
   Serial.println("environment");
   environment.init();
+
   Serial.println("wifi init");
   wifi.init();
 

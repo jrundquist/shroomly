@@ -55,6 +55,7 @@ void Environment::loop()
       {
         successfulyReadCO2 = true;
       }
+      this->_latest_read_ts = millis();
     }
 
     if (hasWater)
@@ -64,8 +65,8 @@ void Environment::loop()
         Serial.println("Error reading water level");
         // return;
       }
+      this->_latest_read_ts = millis();
     }
-    this->_latest_read_ts = millis();
   }
 }
 
