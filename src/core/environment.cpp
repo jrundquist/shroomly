@@ -6,6 +6,8 @@ Environment environment;
 unsigned long nextSensorRead = 0;
 unsigned long nextMQTTPush = 0;
 bool successfulyReadCO2 = false;
+bool hasWater = false;
+bool hasScd30 = false;
 
 void Environment::init()
 {
@@ -13,6 +15,10 @@ void Environment::init()
   if (!scd30.begin())
   {
     Serial.println("Failed to find SCD30 chip");
+  }
+  else
+  {
+    hasScd30 = true;
   }
   Serial.println("SCD30 Found!");
   Serial.print("Measurement Interval: ");
@@ -26,29 +32,36 @@ void Environment::init()
   }
   else
   {
+    hasWater = true;
     Serial.println("OK");
   }
 }
 
 void Environment::loop()
 {
-  if (millis() > nextSensorRead && scd30.dataReady())
+  if (millis() > nextSensorRead)
   {
-    nextSensorRead = millis() + (scd30.getMeasurementInterval() * 1000);
-    if (!scd30.read())
+    if (hasScd30)
     {
-      Serial.println("Error reading sensor data");
-      return;
+      nextSensorRead = millis() + (scd30.getMeasurementInterval() * 1000);
+      if (!scd30.read())
+      {
+        Serial.println("Error reading sensor data");
+        return;
+      }
+      if (!successfulyReadCO2 && scd30.CO2 > 0)
+      {
+        successfulyReadCO2 = true;
+      }
     }
 
-    if (!waterLevel.read())
+    if (hasWater)
     {
-      Serial.println("Error reading water level");
-      return;
-    }
-    if (!successfulyReadCO2 && scd30.CO2 > 0)
-    {
-      successfulyReadCO2 = true;
+      if (!waterLevel.read())
+      {
+        Serial.println("Error reading water level");
+        // return;
+      }
     }
   }
 
