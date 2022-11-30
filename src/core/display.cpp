@@ -20,9 +20,11 @@ void Display::init()
 
 void Display::clear()
 {
+#ifdef ARDUINO_ADAFRUIT_FEATHER_ESP32S2_TFT
   canvas.fillScreen(ST77XX_BLACK);
   disp.drawRGBBitmap(0, 0, canvas.getBuffer(), 240, 135);
   display.turnOnBacklight();
+#endif
 }
 
 void Display::showEnviroment(Environment &env)
