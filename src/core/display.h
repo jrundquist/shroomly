@@ -13,6 +13,7 @@ class Display
 public:
   void init();
   void showEnviroment(Environment &env);
+  void clear();
 
 private:
   void turnOnBacklight();

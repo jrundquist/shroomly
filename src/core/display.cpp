@@ -18,6 +18,13 @@ void Display::init()
   display.turnOnBacklight();
 }
 
+void Display::clear()
+{
+  canvas.fillScreen(ST77XX_BLACK);
+  disp.drawRGBBitmap(0, 0, canvas.getBuffer(), 240, 135);
+  display.turnOnBacklight();
+}
+
 void Display::showEnviroment(Environment &env)
 {
 #ifdef ARDUINO_ADAFRUIT_FEATHER_ESP32S2_TFT
