@@ -75,7 +75,13 @@ void Environment::loop()
 
     if (aws.publishSensorMessage(msg))
     {
+      Serial.println("Published Sensor Readings");
       nextMQTTPush = millis() + MQTT_PUBLISH_INTERVAL;
+    }
+    else
+    {
+      // nextMQTTPush = millis() + 1000;
+      Serial.println("Publish failed..");
     }
   }
 }

@@ -75,9 +75,11 @@ StaticJsonDocument<1024> Aws::createMessage()
 
 bool Aws::publishSensorMessage(StaticJsonDocument<1024> doc)
 {
+  auto topic = String("shroomly/") + deviceIdStr() + String("/sensors");
   char jsonBuffer[1024];
   serializeJson(doc, jsonBuffer); // print to client
-  return client.publish(AWS_IOT_SENSOR_PUBLISH_TOPIC, jsonBuffer);
+  Serial.println(topic);
+  return client.publish(topic, jsonBuffer);
 }
 
 void Aws::loop()
