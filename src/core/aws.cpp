@@ -2,22 +2,27 @@
 
 Aws aws;
 
-WiFiClientSecure net = WiFiClientSecure();
-MQTTClient client = MQTTClient(256);
-
-unsigned long nextLoop = 0;
-
-unsigned long getCurrentTime()
+namespace
 {
-  struct tm timeinfo;
-  time_t now;
-  if (!getLocalTime(&timeinfo))
+  WiFiClientSecure net = WiFiClientSecure();
+  MQTTClient client = MQTTClient(256);
+
+  unsigned long nextLoop = 0;
+  unsigned long nextMQTTPush = 0;
+  unsigned long lastPushedEnvTimestamp = 0;
+
+  unsigned long getCurrentTime()
   {
-    Serial.println("Failed to obtain time");
-    return (0);
+    struct tm timeinfo;
+    time_t now;
+    if (!getLocalTime(&timeinfo))
+    {
+      Serial.println("Failed to obtain time");
+      return (0);
+    }
+    time(&now);
+    return now;
   }
-  time(&now);
-  return now;
 }
 
 bool Aws::begin()
@@ -48,9 +53,6 @@ bool Aws::begin()
     Serial.println("AWS IoT Timeout!");
     return false;
   }
-
-  // Subscribe to a topic
-  // client.subscribe(AWS_IOT_SUBSCRIBE_TOPIC);
   return true;
 };
 
@@ -62,9 +64,10 @@ void Aws::messageHandler(String &topic, String &payload)
   //  const char* message = doc["message"];
 };
 
-StaticJsonDocument<1024> Aws::createMessage()
+template <size_t T>
+StaticJsonDocument<T> Aws::createMessage()
 {
-  StaticJsonDocument<1024> doc;
+  StaticJsonDocument<T> doc;
   doc["time"] = getCurrentTime();
   doc["device_id"] = deviceIdStr();
   doc["uptime"] = (int)(millis() / 1000);
@@ -73,16 +76,40 @@ StaticJsonDocument<1024> Aws::createMessage()
   return doc;
 }
 
-bool Aws::publishSensorMessage(StaticJsonDocument<1024> doc)
+template <size_t T>
+bool Aws::publishMessage(String topic, StaticJsonDocument<T> doc)
 {
-  auto topic = String("shroomly/") + deviceIdStr() + String("/sensors");
-  char jsonBuffer[1024];
+  char jsonBuffer[T];
   serializeJson(doc, jsonBuffer); // print to client
   Serial.println(topic);
   return client.publish(topic, jsonBuffer);
 }
 
+void Aws::sendEnvUpdate()
+{
+  if (millis() > nextMQTTPush && environment.latestTimestamp() != lastPushedEnvTimestamp)
+  {
+    auto msg = createMessage<100>();
+    JsonObject env = msg.createNestedObject("env");
+    env["co2"] = environment.getCO2();
+    env["hum"] = environment.getHumidity();
+    env["temp"] = environment.getTempF();
+    lastPushedEnvTimestamp = environment.latestTimestamp();
+
+    if (publishMessage(AWS_IOT_SENSOR_TOPIC, msg))
+    {
+      Serial.println("Published Sensor Readings");
+      nextMQTTPush = millis() + SENSOR_PUBLISH_INTERVAL;
+    }
+    else
+    {
+      Serial.println("Publish failed..");
+    }
+  }
+}
+
 void Aws::loop()
 {
   client.loop();
+  sendEnvUpdate();
 }

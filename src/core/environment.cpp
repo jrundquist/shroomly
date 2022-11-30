@@ -3,11 +3,14 @@
 Adafruit_SCD30 scd30;
 
 Environment environment;
-unsigned long nextSensorRead = 0;
-unsigned long nextMQTTPush = 0;
-bool successfulyReadCO2 = false;
-bool hasWater = false;
-bool hasScd30 = false;
+
+namespace
+{
+  unsigned long nextSensorRead = 0;
+  bool successfulyReadCO2 = false;
+  bool hasWater = false;
+  bool hasScd30 = false;
+}
 
 void Environment::init()
 {
@@ -47,7 +50,6 @@ void Environment::loop()
       if (!scd30.read())
       {
         Serial.println("Error reading sensor data");
-        return;
       }
       if (!successfulyReadCO2 && scd30.CO2 > 0)
       {
@@ -63,26 +65,7 @@ void Environment::loop()
         // return;
       }
     }
-  }
-
-  if (millis() > nextMQTTPush && successfulyReadCO2)
-  {
-    auto msg = aws.createMessage();
-    JsonObject env = msg.createNestedObject("env");
-    env["co2"] = this->getCO2();
-    env["hum"] = this->getHumidity();
-    env["temp"] = this->getTempF();
-
-    if (aws.publishSensorMessage(msg))
-    {
-      Serial.println("Published Sensor Readings");
-      nextMQTTPush = millis() + MQTT_PUBLISH_INTERVAL;
-    }
-    else
-    {
-      // nextMQTTPush = millis() + 1000;
-      Serial.println("Publish failed..");
-    }
+    this->_latest_read_ts = millis();
   }
 }
 
