@@ -2,12 +2,12 @@
   "resourceName": "shroomly",
   "tableName": "shroomly",
   "partitionKey": {
-    "fieldName": "sample_time",
-    "fieldType": "number"
-  },
-  "sortKey": {
     "fieldName": "device_id",
     "fieldType": "string"
+  },
+  "sortKey": {
+    "fieldName": "sample_time",
+    "fieldType": "number"
   },
   "gsi": [],
   "triggerFunctions": []
