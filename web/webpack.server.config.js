@@ -2,6 +2,8 @@ const path = require("path");
 const slsw = require("serverless-webpack");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 
+console.log(slsw);
+
 module.exports = {
   entry: slsw.lib.entries,
   target: "node",

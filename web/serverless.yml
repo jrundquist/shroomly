@@ -34,6 +34,9 @@ provider:
     SERVERLESS_REGION: ${self:provider.region}
     SERVERLESS_STAGE: ${self:provider.stage}
 
+    USER_POOL_ID: {Ref: "ShroomlyCognitoUserPool"}
+    USER_POOL_CLIENT_ID: !Ref ShroomlyCognitoUserPoolClient
+
     APP_DIST_URL: ${self:custom.distBucketUrl.${self:provider.region}, self:custom.distBucketUrl.default}
     APP_PUBLIC_URL: ${self:custom.distBucketUrl.${self:provider.region}, self:custom.distBucketUrl.default}
     APIGATEWAY_URL:
@@ -63,8 +66,7 @@ functions:
           cors: true
           authorizer:
             type: COGNITO_USER_POOLS
-            authorizerId:
-              Ref: ShroomlyApiGatewayAuthorizer
+            authorizerId: !Ref ShroomlyApiGatewayAuthorizer
   serve:
     # Any web request regardless of path or method will be handled by a single Lambda function
     handler: handler.serve
@@ -137,15 +139,13 @@ resources:
         UserPoolName: ShroomlyUserPool
         UsernameConfiguration:
           CaseSensitive: false
-        UsernameAttributes: 
-         - "email"
 
     # Cognito Web Application Client
     ShroomlyCognitoUserPoolClient:
       Type: AWS::Cognito::UserPoolClient
       Properties:
         ClientName: ShroomlyWebApp
-        GenerateSecret: true
+        GenerateSecret: false
         UserPoolId:
           Ref: "ShroomlyCognitoUserPool"
 
@@ -224,6 +224,16 @@ resources:
       Description: API Gateway Endpoint
       Value:
         Ref: ApiGatewayRestApi
+    UserPoolId:
+      Value:
+        Ref: ShroomlyCognitoUserPool
+      Export:
+        Name: ${self:provider.stage}-UserPoolId
+    UserPoolClientId:
+      Value:
+        Ref: ShroomlyCognitoUserPoolClient
+      Export:
+        Name: ${self:provider.stage}-UserPoolClientId
     DistBucket:
       Description: Distribution S3 Bucket
       Value:
