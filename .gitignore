@@ -70,6 +70,7 @@ jspm_packages
 # Serverless directories
 .serverless
 .env
+.dynamodb
 web/bin
 
 # Webpack and distribution directories

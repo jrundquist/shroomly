@@ -18,7 +18,7 @@ service: shroomly-web
 
 # You can pin your service to only deploy with a specific Serverless version
 # Check out our docs for more details
-frameworkVersion: '3'
+frameworkVersion: "3"
 
 provider:
   name: aws
@@ -34,7 +34,7 @@ provider:
     SERVERLESS_REGION: ${self:provider.region}
     SERVERLESS_STAGE: ${self:provider.stage}
 
-    USER_POOL_ID: {Ref: "ShroomlyCognitoUserPool"}
+    USER_POOL_ID: !Ref "ShroomlyCognitoUserPool"
     USER_POOL_CLIENT_ID: !Ref ShroomlyCognitoUserPoolClient
 
     APP_DIST_URL: ${self:custom.distBucketUrl.${self:provider.region}, self:custom.distBucketUrl.default}
@@ -54,6 +54,7 @@ plugins:
   - serverless-plugin-scripts
   - serverless-offline
   - serverless-s3-deploy
+  - serverless-dynamodb-local
 
 functions:
   AuthTest:
@@ -81,8 +82,22 @@ functions:
           cors: true
 
 custom:
-  usersTableName: 'shroomly-users-${sls:stage}'
-  deviceSensorTableName: 'shroomly-sensors-${sls:stage}'
+  usersTableName: "shroomly-users-${sls:stage}"
+  deviceSensorTableName: "shroomly-device-sensors-${sls:stage}"
+
+  dynamodb:
+    # If you only want to use DynamoDB Local in some stages, declare them here
+    stages:
+      - dev
+    start:
+      port: 8011
+      inMemory: true
+      heapInitial: 200m
+      heapMax: 1g
+      migrate: true
+      seed: true
+      convertEmptyValues: true
+
   distBucketUrl:
     us-east-1:
       # us-east-1 uses a different URL format than the other regions
@@ -134,8 +149,8 @@ resources:
     ShroomlyCognitoUserPool:
       Type: AWS::Cognito::UserPool
       Properties:
-        AutoVerifiedAttributes: 
-         - "email"
+        AutoVerifiedAttributes:
+          - "email"
         UserPoolName: ShroomlyUserPool
         UsernameConfiguration:
           CaseSensitive: false
@@ -164,7 +179,7 @@ resources:
           Ref: ApiGatewayRestApi
         Type: COGNITO_USER_POOLS
         ProviderARNs:
-          - Fn::GetAtt: [ ShroomlyCognitoUserPool, Arn ]
+          - Fn::GetAtt: [ShroomlyCognitoUserPool, Arn]
         IdentitySource: method.request.header.Authorization
 
     # Lambda Execution Role
@@ -173,7 +188,7 @@ resources:
       Properties:
         RoleName: ShroomlyLambda
         AssumeRolePolicyDocument:
-          Version: '2012-10-17'
+          Version: "2012-10-17"
           Statement:
             - Effect: Allow
               Principal:
@@ -183,21 +198,76 @@ resources:
         Policies:
           - PolicyName: DynamoDBReadAccess
             PolicyDocument:
-              Version: '2012-10-17'
+              Version: "2012-10-17"
               Statement:
                 - Effect: Allow
                   Action:
                     - logs:CreateLogGroup
                     - logs:CreateLogStream
                     - logs:PutLogEvents
-                  Resource: 
-                    - 'Fn::Join':
-                      - ':'
-                      -
-                        - 'arn:aws:logs'
-                        - Ref: 'AWS::Region'
-                        - Ref: 'AWS::AccountId'
-                        - 'log-group:/aws/lambda/*:*:*'
+                  Resource:
+                    - "Fn::Join":
+                        - ":"
+                        - - "arn:aws:logs"
+                          - Ref: "AWS::Region"
+                          - Ref: "AWS::AccountId"
+                          - "log-group:/aws/lambda/*:*:*"
+
+    # DynamoDB for Sensor Readings
+    SensorReadingsDynamoDB:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.deviceSensorTableName}
+        AttributeDefinitions:
+          - AttributeName: device_id
+            AttributeType: S
+          - AttributeName: timestamp
+            AttributeType: N
+        KeySchema:
+          - AttributeName: device_id
+            KeyType: HASH
+          - AttributeName: timestamp
+            KeyType: "RANGE"
+        BillingMode: PROVISIONED
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+
+    # IoT MQTT to Dynamodb Rule Role
+    SensorMQTTPublishRole:
+      Type: AWS::IAM::Role
+      Properties:
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service:
+                  - iot.amazonaws.com
+              Action:
+                - "sts:AssumeRole"
+        Policies:
+          - PolicyName: WriteToSensorDynamoDB
+            PolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+                - Effect: Allow
+                  Action: "dynamodb:PutItem"
+                  Resource: !GetAtt SensorReadingsDynamoDB.Arn
+
+    # IoT MQTT to DynamoDB
+    SensorMQTTPublishDynamoDB:
+      Type: AWS::IoT::TopicRule
+      Properties:
+        RuleName: SensorMQTTPublishDynamoDB
+        TopicRulePayload:
+          RuleDisabled: false
+          Sql: SELECT device_id, time as timestamp, uptime, wifi_rssi, env.co2 as env_co2, env.hum as env_hum, env.temp as env_temp_f FROM 'shroomly/+/sensors'
+          Actions:
+            - DynamoDBv2:
+                PutItem:
+                  TableName: ${self:custom.deviceSensorTableName}
+                RoleArn: !GetAtt SensorMQTTPublishRole.Arn
 
     # S3 Bucket for the distribution bundles
     DistBucket:
