@@ -3,9 +3,7 @@ import "./App.css";
 import * as React from "react";
 
 import useConfig from "./components/useConfig";
-import logo from "./logo.svg";
-import { Amplify, Auth } from "aws-amplify";
-import awsExports from "./aws-exports";
+import { Auth } from "aws-amplify";
 import { Authenticator } from "@aws-amplify/ui-react";
 
 import "@aws-amplify/ui-react/styles.css";
@@ -36,31 +34,20 @@ function HitTest() {
 }
 
 /**
- * Our Web Application
+ * Main Application
  */
 export default function App() {
   const config = useConfig();
 
-  console.log({ config });
-  Amplify.configure(config.awsConfig);
-
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <h1 className="App-title">Welcome to {config.app.TITLE}</h1>
-      </header>
-      <div className="App-intro">
-        <Authenticator>
-          {({ signOut, user }) => (
-            <main>
-              <h1>Hello {user!.username}</h1>
-              <button onClick={signOut}>Sign out</button>
-              <HitTest />
-            </main>
-          )}
-        </Authenticator>
-      </div>
-    </div>
+    <Authenticator>
+      {({ signOut, user }) => (
+        <main>
+          <h1>Hello {user!.username}</h1>
+          <button onClick={signOut}>Sign out</button>
+          <HitTest />
+        </main>
+      )}
+    </Authenticator>
   );
 }

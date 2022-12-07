@@ -9,6 +9,7 @@ import "./index.css";
  */
 import * as React from "react";
 import { hydrate } from "react-dom";
+import { Amplify } from "aws-amplify";
 
 import ConfigContext from "../components/ConfigContext";
 import { Config } from "../server/config";
@@ -16,6 +17,9 @@ import App from "../App";
 
 const config = (window as any).__CONFIG__ as Config;
 delete (window as any).__CONFIG__;
+
+// Configure the Amplify lib
+Amplify.configure(config);
 
 /** Components added here will _only_ be loaded in the web browser, never for server-side rendering */
 const render = () => {

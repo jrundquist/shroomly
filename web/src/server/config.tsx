@@ -50,7 +50,5 @@ const config = {
   },
 };
 
-console.info({ config });
-
 export type Config = typeof config;
 export default config;
