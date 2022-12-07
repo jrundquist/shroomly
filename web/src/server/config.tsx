@@ -30,13 +30,20 @@ const config = {
   },
 
   awsConfig: {
-    all: JSON.stringify(process.env),
     aws_project_region: String(process.env.SERVERLESS_REGION),
     //aws_cognito_identity_pool_id: "us-west-1:117565975709:userpool/us-west-1_eS4RMawSr",
     aws_cognito_region: String(process.env.SERVERLESS_REGION),
-    aws_user_pools_id: isLocal ? "us-west-1_eS4RMawSr" : String(process.env.USER_POOL_ID),
-    aws_user_pools_web_client_id: isLocal ? "70b372i3a99maehru7ufrq559d" : String(process.env.USER_POOL_CLIENT_ID),
-    oauth: {},
+    aws_user_pools_id: isLocal ? "us-west-1_pXB4EB06q" : String(process.env.USER_POOL_ID),
+    aws_user_pools_web_client_id: isLocal ? "3vncjashfa2ubau8pl05bm9c6q" : String(process.env.USER_POOL_CLIENT_ID),
+    // OPTIONAL - Hosted UI configuration
+    oauth: {
+      domain: "http://localhost:9229",
+      scope: ["phone", "email", "profile", "openid", "aws.cognito.signin.user.admin"],
+      redirectSignIn: "http://localhost:3000/",
+      redirectSignOut: "http://localhost:3000/",
+      responseType: "code", // or 'token', note that REFRESH token will only be generated when the responseType is code
+    },
+    aws_cognito_endpoint: "http://localhost:9229",
     aws_cognito_username_attributes: [],
     aws_cognito_social_providers: [],
     aws_cognito_signup_attributes: ["EMAIL"],

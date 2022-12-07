@@ -55,6 +55,7 @@ plugins:
   - serverless-offline
   - serverless-s3-deploy
   - serverless-dynamodb-local
+  - serverless-offline-local-authorizers-plugin
 
 functions:
   AuthTest:
@@ -62,9 +63,13 @@ functions:
     role: ShroomlyLambdaRole
     events:
       - http:
-          path: test
-          method: post
+          path: /test
+          method: ANY
           cors: true
+          localAuthorizer:
+            type: COGNITO_USER_POOLS
+            name: "localAuthProxyFn"
+            IdentitySource: "Authorization"
           authorizer:
             type: COGNITO_USER_POOLS
             authorizerId: !Ref ShroomlyApiGatewayAuthorizer

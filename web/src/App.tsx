@@ -9,12 +9,13 @@ import { Authenticator } from "@aws-amplify/ui-react";
 import "@aws-amplify/ui-react/styles.css";
 
 function HitTest() {
+  const config = useConfig();
   const [res, setRes] = React.useState<String | null>(null);
 
   React.useEffect(() => {
     Auth.currentSession().then((session) => {
       console.log({ session });
-      fetch("/dev/test", {
+      fetch(`${config.app.URL}/test`, {
         method: "POST",
         cache: "no-cache",
         credentials: "same-origin",
