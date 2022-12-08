@@ -1,11 +1,10 @@
 #include "../include/common.h"
+#include "../include/pins.h"
 #include "../core/status_pixel.h"
 
 #include <Arduino.h>
 #include <Wire.h>
 #include <SPI.h>
-
-#define GROW_LIGHT_PIN A5
 
 class Lighting
 {
