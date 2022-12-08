@@ -10,10 +10,24 @@ namespace
   bool successfulyReadCO2 = false;
   bool hasWater = false;
   bool hasScd30 = false;
+
+  uint8_t fanOnSpeed = 0xff;
+
+  bool isControllingHumidity = false;
+  unsigned long nextFanStateChange = 1000; // Dont start the fan immediately
+  unsigned long fanOnForTime = 5000;       // 5s
+  unsigned long fanOffForTime = 10000;     // 10s
+  bool isFanOn = false;
 }
 
 void Environment::init()
 {
+
+  // Set Pin modes
+  pinMode(HUMIDIFIER_FAN_PIN, OUTPUT);
+  pinMode(HUMIDIFIER_PIN, OUTPUT);
+  pinMode(GROW_LIGHT_PIN, OUTPUT);
+
   // Try to initialize!
   if (!scd30.begin())
   {
@@ -42,6 +56,19 @@ void Environment::init()
 
 void Environment::loop()
 {
+
+  if (isControllingHumidity)
+  {
+    if (millis() >= nextFanStateChange)
+    {
+      auto speed = isFanOn ? OFF : fanOnSpeed;
+      auto inThisStateFor = isFanOn ? fanOffForTime : fanOnForTime;
+      nextFanStateChange = millis() + inThisStateFor;
+      isFanOn = !isFanOn;
+      analogWrite(HUMIDIFIER_FAN_PIN, speed);
+    }
+  }
+
   if (millis() > nextSensorRead)
   {
     if (hasScd30)
