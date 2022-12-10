@@ -274,6 +274,46 @@ resources:
                   TableName: ${self:custom.deviceSensorTableName}
                 RoleArn: !GetAtt SensorMQTTPublishRole.Arn
 
+    # LWT MQTT republish
+    RepublishLWTMessages:
+      Type: AWS::IoT::TopicRule
+      Properties:
+        RuleName: RepublishLWTMessages
+        TopicRulePayload:
+          RuleDisabled: false
+          Sql: SELECT * FROM 'republish/things/+/shadow/update'
+          Actions:
+            - Republish:
+                Topic: $$aws/things/\${topic(3)}/shadow/update
+                RoleArn: !GetAtt RepublishLWTMessagesRole.Arn
+
+    RepublishLWTMessagesRole:
+      Type: AWS::IAM::Role
+      Properties:
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service:
+                  - iot.amazonaws.com
+              Action:
+                - "sts:AssumeRole"
+        Policies:
+          - PolicyName: RepublishUpdateMessagesToAwsProtected
+            PolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+                - Effect: Allow
+                  Action: "iot:Publish"
+                  Resource:
+                    - "Fn::Join":
+                        - ":"
+                        - - "arn:aws:iot"
+                          - Ref: "AWS::Region"
+                          - Ref: "AWS::AccountId"
+                          - "topic/$aws/things/*/shadow/update"
+
     # S3 Bucket for the distribution bundles
     DistBucket:
       Type: AWS::S3::Bucket
