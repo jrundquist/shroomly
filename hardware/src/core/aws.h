@@ -11,12 +11,20 @@
 #include "../include/common.h"
 #include "../include/secrets.h"
 
-#define THINGNAME "shroomly_proto"
+#define THINGNAME "shroomly_proto_feather_v2"
 #define AWS_ENDPOINT "a3feb25p4t37j5-ats.iot.us-west-1.amazonaws.com"
 
 // The MQTT topics that this device will publish/subscribe to.
-#define AWS_IOT_SENSOR_TOPIC String("shroomly/") + deviceIdStr() + String("/sensors")
+#define AWS_IOT_SENSOR_TOPIC String(F("shroomly/")) + deviceIdStr() + String(F("/sensors"))
 #define SENSOR_PUBLISH_INTERVAL 60000 /** 1 Minute */
+
+#define _SHADOW_PREFIX String(F("$aws/things/")) + String(THINGNAME) + String(F("/shadow"))
+#define SHADOW_SEND_GET_TOPIC _SHADOW_PREFIX + String(F("/get"))
+#define SHADOW_GET_ACCEPTED_TOPIC _SHADOW_PREFIX + String(F("/get/accepted"))
+
+#define SHADOW_SEND_UPDATE_TOPIC (_SHADOW_PREFIX + String(F("/update"))).c_str()
+#define SHADOW_SEND_UPDATE_ACCEPTED_TOPIC _SHADOW_PREFIX + String(F("/update/accepted"))
+#define SHADOW_UPDATE_DELTA_TOPIC _SHADOW_PREFIX + String(F("/update/delta"))
 
 class Aws
 {
@@ -47,6 +55,9 @@ private:
   /// @brief Send any available environmental updates to the MQTT channel
   /// specified by
   void sendEnvUpdate();
+
+  /// @brief send the device state
+  void reportDeviceState();
 };
 
 extern Aws aws;

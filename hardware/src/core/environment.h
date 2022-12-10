@@ -4,6 +4,8 @@
 #include "../include/pins.h"
 #include "./water_level.h"
 
+#define ENV_SENSOR_READ_INTERVAL 45000
+
 namespace
 {
   const uint8_t ON = 0xff;
@@ -28,7 +30,7 @@ public:
   }
 
 private:
-  unsigned long _latest_read_ts;
+  unsigned long _latest_read_ts = 0;
 };
 
 extern Environment environment;

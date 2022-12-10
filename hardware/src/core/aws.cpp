@@ -53,7 +53,34 @@ bool Aws::begin()
     Serial.println("AWS IoT Timeout!");
     return false;
   }
+
+  // Serial.print(" { ");
+  client.subscribe(SHADOW_GET_ACCEPTED_TOPIC);
+  // Serial.println(SHADOW_UPDATE_DELTA_TOPIC);
+  client.subscribe(SHADOW_UPDATE_DELTA_TOPIC);
+  client.subscribe(SHADOW_SEND_UPDATE_ACCEPTED_TOPIC);
+
+  auto lastWill = StaticJsonDocument<100>();
+  auto reported = lastWill.createNestedObject("state").createNestedObject("reported");
+  reported["connected"] = false;
+  char lastWillBuffer[200];
+  serializeJson(lastWill, lastWillBuffer); // print to client
+  client.setWill(SHADOW_SEND_UPDATE_TOPIC, lastWillBuffer);
+
+  reportDeviceState();
+
   return true;
+};
+
+void Aws::reportDeviceState()
+{
+  auto deviceState = StaticJsonDocument<100>();
+  auto reported = deviceState.createNestedObject("state").createNestedObject("reported");
+  reported["connected"] = true;
+
+  char msgBuffer[200];
+  serializeJson(deviceState, msgBuffer); // print to client
+  client.publish(SHADOW_SEND_UPDATE_TOPIC, msgBuffer);
 };
 
 void Aws::messageHandler(String &topic, String &payload)
@@ -89,7 +116,7 @@ void Aws::sendEnvUpdate()
 {
   if (millis() > nextMQTTPush && environment.latestTimestamp() != lastPushedEnvTimestamp)
   {
-    auto msg = createMessage<100>();
+    auto msg = createMessage<200>();
     JsonObject env = msg.createNestedObject("env");
     env["co2"] = environment.getCO2();
     env["hum"] = environment.getHumidity();

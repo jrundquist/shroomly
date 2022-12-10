@@ -73,7 +73,7 @@ void Environment::loop()
   {
     if (hasScd30)
     {
-      nextSensorRead = millis() + (scd30.getMeasurementInterval() * 1000);
+      nextSensorRead = millis() + ENV_SENSOR_READ_INTERVAL;
       if (!scd30.read())
       {
         Serial.println("Error reading sensor data");
@@ -81,8 +81,8 @@ void Environment::loop()
       if (!successfulyReadCO2 && scd30.CO2 > 0)
       {
         successfulyReadCO2 = true;
+        this->_latest_read_ts = millis();
       }
-      this->_latest_read_ts = millis();
     }
 
     if (hasWater)
