@@ -23,6 +23,16 @@ namespace
     time(&now);
     return now;
   }
+
+  void setWill()
+  {
+    auto lastWill = StaticJsonDocument<48>();
+    auto reported = lastWill.createNestedObject("state").createNestedObject("reported");
+    reported["connected"] = false;
+    char lastWillBuffer[48];
+    serializeJson(lastWill, lastWillBuffer); // print to client
+    client.setWill(LWT_TOPIC, lastWillBuffer);
+  }
 }
 
 bool Aws::begin()
@@ -34,6 +44,7 @@ bool Aws::begin()
 
   // Connect to the MQTT broker on the AWS endpoint we defined earlier
   client.begin(AWS_ENDPOINT, 8883, net);
+  setWill();
 
   // Create a message handler
   client.onMessage([&](String &topic, String &payload) -> void
@@ -45,6 +56,9 @@ bool Aws::begin()
   while (!client.connect(THINGNAME))
   {
     Serial.print(".");
+    Serial.print("[");
+    Serial.print(client.lastError());
+    Serial.print("]");
     delay(100);
   }
 
@@ -54,18 +68,9 @@ bool Aws::begin()
     return false;
   }
 
-  // Serial.print(" { ");
   client.subscribe(SHADOW_GET_ACCEPTED_TOPIC);
-  // Serial.println(SHADOW_UPDATE_DELTA_TOPIC);
   client.subscribe(SHADOW_UPDATE_DELTA_TOPIC);
   client.subscribe(SHADOW_SEND_UPDATE_ACCEPTED_TOPIC);
-
-  auto lastWill = StaticJsonDocument<100>();
-  auto reported = lastWill.createNestedObject("state").createNestedObject("reported");
-  reported["connected"] = false;
-  char lastWillBuffer[200];
-  serializeJson(lastWill, lastWillBuffer); // print to client
-  client.setWill(SHADOW_SEND_UPDATE_TOPIC, lastWillBuffer);
 
   reportDeviceState();
 
@@ -86,9 +91,6 @@ void Aws::reportDeviceState()
 void Aws::messageHandler(String &topic, String &payload)
 {
   Serial.println("incoming: " + topic + " - " + payload);
-  //  StaticJsonDocument<200> doc;
-  //  deserializeJson(doc, payload);
-  //  const char* message = doc["message"];
 };
 
 template <size_t T>

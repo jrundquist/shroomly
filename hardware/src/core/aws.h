@@ -18,6 +18,8 @@
 #define AWS_IOT_SENSOR_TOPIC String(F("shroomly/")) + deviceIdStr() + String(F("/sensors"))
 #define SENSOR_PUBLISH_INTERVAL 60000 /** 1 Minute */
 
+#define LWT_TOPIC (String("republish/things/") + String(THINGNAME) + String(F("/shadow/update"))).c_str()
+
 #define _SHADOW_PREFIX String(F("$aws/things/")) + String(THINGNAME) + String(F("/shadow"))
 #define SHADOW_SEND_GET_TOPIC _SHADOW_PREFIX + String(F("/get"))
 #define SHADOW_GET_ACCEPTED_TOPIC _SHADOW_PREFIX + String(F("/get/accepted"))
