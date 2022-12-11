@@ -9,7 +9,7 @@
 #include "../core/wifi.h"
 #include "../core/storage.h"
 #include "../include/common.h"
-#include "../include/secrets.h"
+#include "../include/files.h"
 
 #define THINGNAME "shroomly_proto_feather_v2"
 #define AWS_ENDPOINT "a3feb25p4t37j5-ats.iot.us-west-1.amazonaws.com"

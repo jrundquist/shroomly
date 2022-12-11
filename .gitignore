@@ -58,9 +58,9 @@ amplifytools.xcconfig
 #amplify-do-not-edit-end
 
 # Application Specific
-.crt
-.key
-.pem
+hardware/data/certs/device.crt
+hardware/data/certs/device.key
+hardware/data/certs/root.pem
 secrets.h
 
 # package directories
@@ -76,4 +76,3 @@ web/bin
 # Webpack and distribution directories
 .webpack
 dist
-

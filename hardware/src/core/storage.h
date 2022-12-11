@@ -5,7 +5,7 @@
 #include <functional>
 #include <algorithm>
 
-#define FORMAT_LITTLEFS_IF_FAILED true
+#define FORMAT_LITTLEFS_IF_FAILED false
 
 class Storage
 {
@@ -18,6 +18,9 @@ public:
   void deleteFile(const char *filename);
   void deleteFile(String filename) { this->deleteFile(filename.c_str()); };
   String readFile(const char *filename);
+
+  char *readFileAsBuff(String path) { return this->readFileAsBuff(path.c_str()); };
+  char *readFileAsBuff(const char *path);
 };
 
 extern Storage storage;

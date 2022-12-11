@@ -40,9 +40,9 @@ namespace
 bool Aws::begin()
 {
   // Configure WiFiClientSecure to use the AWS IoT device credentials
-  net.setCACert(AWS_CERT_CA);
-  net.setCertificate(AWS_CERT_CRT);
-  net.setPrivateKey(AWS_CERT_PRIVATE);
+  net.setCACert(storage.readFileAsBuff(AWS_ROOT_CA));
+  net.setCertificate(storage.readFileAsBuff(AWS_DEVICE_CERT));
+  net.setPrivateKey(storage.readFileAsBuff(AWS_DEVICE_PRIVATE_KEY));
 
   // Connect to the MQTT broker on the AWS endpoint we defined earlier
   client.begin(AWS_ENDPOINT, 8883, net);
@@ -51,9 +51,9 @@ bool Aws::begin()
   // Create a message handler
   client.onMessage([&](String &topic, String &payload) -> void
                    {
-  Serial.println("incoming >> " + topic + " - " + payload);
-  this->messageHandler(topic, payload);
-  return; });
+    Serial.println("incoming >> " + topic + " - " + payload);
+    this->messageHandler(topic, payload);
+    return; });
 
   while (!client.connect(THINGNAME))
   {

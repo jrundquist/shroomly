@@ -27,9 +27,23 @@ void Storage::deleteFile(const char *filename)
   delay(10);
 }
 
+char *Storage::readFileAsBuff(const char *path)
+{
+  File file = LittleFS.open(path);
+  if (!file)
+  {
+    Serial.println("Failed to open " + String(path));
+    return NULL;
+  }
+  char *buffer = (char *)calloc(file.size() + 1, sizeof(char));
+  file.readBytes(buffer, file.size());
+  file.close();
+  return buffer;
+}
+
 String Storage::readFile(const char *filename)
 {
-  auto file = LittleFS.open(filename, FILE_WRITE);
+  auto file = LittleFS.open(filename);
   size_t filesize = file.size();
   // Read into temporary Arduino String
   String data = file.readString();
