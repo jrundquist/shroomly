@@ -7,6 +7,8 @@ namespace
   WiFiClientSecure net = WiFiClientSecure();
   MQTTClient client = MQTTClient(256);
 
+  bool disconnected = false;
+
   unsigned long nextLoop = 0;
   unsigned long nextMQTTPush = 0;
   unsigned long lastPushedEnvTimestamp = 0;
@@ -140,5 +142,15 @@ void Aws::sendEnvUpdate()
 void Aws::loop()
 {
   client.loop();
+  if (!client.connected())
+  {
+    if (!disconnected)
+    {
+      disconnected = true;
+      statusPixel.pixelFlash(colors::RED);
+      statusPixel.pixelWrite(colors::RED);
+    }
+    return;
+  }
   sendEnvUpdate();
 }
