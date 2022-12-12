@@ -25,7 +25,7 @@
 #define SHADOW_GET_ACCEPTED_TOPIC _SHADOW_PREFIX + String(F("/get/accepted"))
 
 #define SHADOW_SEND_UPDATE_TOPIC (_SHADOW_PREFIX + String(F("/update"))).c_str()
-#define SHADOW_SEND_UPDATE_ACCEPTED_TOPIC _SHADOW_PREFIX + String(F("/update/accepted"))
+#define SHADOW_UPDATE_ACCEPTED_TOPIC _SHADOW_PREFIX + String(F("/update/accepted"))
 #define SHADOW_UPDATE_DELTA_TOPIC _SHADOW_PREFIX + String(F("/update/delta"))
 
 class Aws

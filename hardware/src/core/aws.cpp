@@ -49,11 +49,8 @@ bool Aws::begin()
   setWill();
 
   // Create a message handler
-  client.onMessage([&](String &topic, String &payload) -> void
-                   {
-    Serial.println("incoming >> " + topic + " - " + payload);
-    this->messageHandler(topic, payload);
-    return; });
+  client.onMessage([&](String &topic, String &payload)
+                   { messageHandler(topic, payload); });
 
   while (!client.connect(THINGNAME))
   {
@@ -72,7 +69,7 @@ bool Aws::begin()
 
   client.subscribe(SHADOW_GET_ACCEPTED_TOPIC);
   client.subscribe(SHADOW_UPDATE_DELTA_TOPIC);
-  client.subscribe(SHADOW_SEND_UPDATE_ACCEPTED_TOPIC);
+  client.subscribe(SHADOW_UPDATE_ACCEPTED_TOPIC);
 
   reportDeviceState();
 
