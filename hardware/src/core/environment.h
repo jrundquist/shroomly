@@ -4,7 +4,7 @@
 #include "../include/pins.h"
 #include "./water_level.h"
 
-#define ENV_SENSOR_READ_INTERVAL 45000
+#define ENV_SENSOR_READ_INTERVAL 60000 /** 1 Minute */
 
 namespace
 {
@@ -26,7 +26,7 @@ public:
 
   unsigned long latestTimestamp()
   {
-    return _latest_read_ts;
+    return this->_latest_read_ts;
   }
 
 private:

@@ -18,6 +18,19 @@ namespace
   unsigned long fanOnForTime = 5000;       // 5s
   unsigned long fanOffForTime = 10000;     // 10s
   bool isFanOn = false;
+
+  unsigned long getCurrentTime()
+  {
+    struct tm timeinfo;
+    time_t now;
+    if (!getLocalTime(&timeinfo))
+    {
+      Serial.println("Failed to obtain time");
+      return (0);
+    }
+    time(&now);
+    return now;
+  }
 }
 
 void Environment::init()
@@ -73,16 +86,16 @@ void Environment::loop()
   {
     if (hasScd30)
     {
-      nextSensorRead = millis() + ENV_SENSOR_READ_INTERVAL;
       if (!scd30.read())
       {
         Serial.println("Error reading sensor data");
       }
-      if (!successfulyReadCO2 && scd30.CO2 > 0)
+      successfulyReadCO2 = successfulyReadCO2 || (scd30.CO2 > 0);
+      if (successfulyReadCO2)
       {
-        successfulyReadCO2 = true;
-        this->_latest_read_ts = millis();
+        this->_latest_read_ts = getCurrentTime();
       }
+      nextSensorRead = millis() + ENV_SENSOR_READ_INTERVAL;
     }
 
     if (hasWater)
@@ -92,7 +105,7 @@ void Environment::loop()
         Serial.println("Error reading water level");
         // return;
       }
-      this->_latest_read_ts = millis();
+      this->_latest_read_ts = getCurrentTime();
     }
   }
 }

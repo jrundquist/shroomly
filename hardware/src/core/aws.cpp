@@ -109,30 +109,31 @@ bool Aws::publishMessage(String topic, StaticJsonDocument<T> doc)
 {
   char jsonBuffer[T];
   serializeJson(doc, jsonBuffer); // print to client
-  Serial.println(topic);
+  Serial.println("AWS :: Publish :: " + topic);
   return client.publish(topic, jsonBuffer);
 }
 
 void Aws::sendEnvUpdate()
 {
-  if (millis() > nextMQTTPush && environment.latestTimestamp() != lastPushedEnvTimestamp)
+  if (millis() > nextMQTTPush)
   {
-    auto msg = createMessage<200>();
-    JsonObject env = msg.createNestedObject("env");
-    env["co2"] = environment.getCO2();
-    env["hum"] = environment.getHumidity();
-    env["temp"] = environment.getTempF();
-    lastPushedEnvTimestamp = environment.latestTimestamp();
+    if (environment.latestTimestamp() != lastPushedEnvTimestamp)
+    {
+      auto msg = createMessage<200>();
+      // Overwrite the time, setting it to when the sensor data was read.
+      msg["time"] = environment.latestTimestamp();
+      JsonObject env = msg.createNestedObject("env");
+      env["co2"] = environment.getCO2();
+      env["hum"] = environment.getHumidity();
+      env["temp"] = environment.getTempF();
+      lastPushedEnvTimestamp = environment.latestTimestamp();
 
-    if (publishMessage(AWS_IOT_SENSOR_TOPIC, msg))
-    {
-      Serial.println("Published Sensor Readings");
-      nextMQTTPush = millis() + SENSOR_PUBLISH_INTERVAL;
+      if (!publishMessage(AWS_IOT_SENSOR_TOPIC, msg))
+      {
+        Serial.println("AWS :: Sensor readings failed to publish");
+      }
     }
-    else
-    {
-      Serial.println("Publish failed..");
-    }
+    nextMQTTPush = millis() + SENSOR_PUBLISH_INTERVAL;
   }
 }
 
