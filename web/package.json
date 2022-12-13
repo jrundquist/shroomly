@@ -8,7 +8,7 @@
     "start:offline": "sls offline local-authorizers",
     "build:serverless": "sls package",
     "build:browser": "webpack --config webpack.browser.config.js --mode production",
-    "deploy": "sls deploy --aws-profile serverless",
+    "deploy": "sls deploy",
     "test": "jest"
   },
   "dependencies": {

@@ -11,8 +11,8 @@
 #include "../include/common.h"
 #include "../include/files.h"
 
-#define THINGNAME "shroomly_proto_feather_v2"
-#define AWS_ENDPOINT "a3feb25p4t37j5-ats.iot.us-west-1.amazonaws.com"
+#define THINGNAME "shroomly_proto_00"
+#define AWS_ENDPOINT "a3feb25p4t37j5-ats.iot.us-west-2.amazonaws.com"
 
 // The MQTT topics that this device will publish/subscribe to.
 #define AWS_IOT_SENSOR_TOPIC String(F("shroomly/")) + deviceIdStr() + String(F("/sensors"))
