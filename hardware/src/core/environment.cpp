@@ -67,8 +67,17 @@ void Environment::init()
   }
 }
 
-void Environment::loop()
+void Environment::loop(DeviceState state)
 {
+
+  if (state.growLightOn)
+  {
+    analogWrite(GROW_LIGHT_PIN, 0x88);
+  }
+  else
+  {
+    analogWrite(GROW_LIGHT_PIN, 0x00);
+  }
 
   if (isControllingHumidity)
   {

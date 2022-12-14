@@ -8,6 +8,7 @@
 #include "../core/environment.h"
 #include "../core/wifi.h"
 #include "../core/storage.h"
+#include "../core/device_state.h"
 #include "../include/common.h"
 #include "../include/files.h"
 
@@ -25,14 +26,16 @@
 #define SHADOW_GET_ACCEPTED_TOPIC _SHADOW_PREFIX + String(F("/get/accepted"))
 
 #define SHADOW_SEND_UPDATE_TOPIC (_SHADOW_PREFIX + String(F("/update"))).c_str()
-#define SHADOW_UPDATE_ACCEPTED_TOPIC _SHADOW_PREFIX + String(F("/update/accepted"))
-#define SHADOW_UPDATE_DELTA_TOPIC _SHADOW_PREFIX + String(F("/update/delta"))
+#define SHADOW_UPDATE_ACCEPTED_TOPIC (_SHADOW_PREFIX + String(F("/update/accepted"))).c_str()
+#define SHADOW_UPDATE_DELTA_TOPIC (_SHADOW_PREFIX + String(F("/update/delta"))).c_str()
 
 class Aws
 {
 public:
   bool begin();
   void loop();
+
+  const DeviceState getState() { return this->state; }
 
 private:
   /// @brief Creates a JsonDoc pre-populated with device information.
@@ -60,6 +63,12 @@ private:
 
   /// @brief send the device state
   void reportDeviceState();
+
+  /// @brief Reconciles incoming deltas with the current device state.
+  /// @param delta JsonObject containing the incoming delta
+  void handleDelta(JsonObject delta);
+
+  DeviceState state;
 };
 
 extern Aws aws;

@@ -3,6 +3,7 @@
 #include <ArduinoJson.h>
 #include "../include/pins.h"
 #include "./water_level.h"
+#include "./device_state.h"
 
 #define ENV_SENSOR_READ_INTERVAL 60000 /** 1 Minute */
 
@@ -16,7 +17,7 @@ class Environment
 {
 public:
   void init();
-  void loop();
+  void loop(DeviceState state);
 
   float getHumidity();
   float getTempC();

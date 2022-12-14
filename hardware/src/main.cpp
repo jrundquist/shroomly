@@ -92,9 +92,9 @@ void setup()
 
 void loop()
 {
-  environment.loop();
-  display.showEnviroment(environment);
+  environment.loop(aws.getState());
   aws.loop();
+  display.showEnviroment(environment);
   if (http.requestCameraImage)
   {
     camera.takePhoto("/temp.jpg");

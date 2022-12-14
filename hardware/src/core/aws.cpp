@@ -81,6 +81,7 @@ void Aws::reportDeviceState()
   auto deviceState = StaticJsonDocument<100>();
   auto reported = deviceState.createNestedObject("state").createNestedObject("reported");
   reported["connected"] = true;
+  reported["growLightOn"] = this->state.growLightOn;
 
   char msgBuffer[200];
   serializeJson(deviceState, msgBuffer); // print to client
@@ -90,7 +91,21 @@ void Aws::reportDeviceState()
 void Aws::messageHandler(String &topic, String &payload)
 {
   Serial.println("incoming: " + topic + " - " + payload);
+  DynamicJsonDocument doc(1024);
+  deserializeJson(doc, payload);
+  JsonObject root = doc["state"].as<JsonObject>();
+  if (topic == SHADOW_UPDATE_DELTA_TOPIC)
+  {
+    handleDelta(root);
+  }
 };
+
+void Aws::handleDelta(JsonObject delta)
+{
+  Serial.println("Handling incoming delta");
+  this->state.applyJSON(delta);
+  reportDeviceState();
+}
 
 template <size_t T>
 StaticJsonDocument<T> Aws::createMessage()
