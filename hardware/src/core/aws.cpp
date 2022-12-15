@@ -5,7 +5,7 @@ Aws aws;
 namespace
 {
   WiFiClientSecure net = WiFiClientSecure();
-  MQTTClient client = MQTTClient(256);
+  MQTTClient client = MQTTClient(1024);
 
   bool disconnected = false;
 
@@ -39,6 +39,8 @@ namespace
 
 bool Aws::begin()
 {
+  const int startupColor[3]{0x00, 0x10, 0x10};
+  statusPixel.pixelWrite(startupColor);
   // Configure WiFiClientSecure to use the AWS IoT device credentials
   net.setCACert(storage.readFileAsBuff(AWS_ROOT_CA));
   net.setCertificate(storage.readFileAsBuff(AWS_DEVICE_CERT));
@@ -61,9 +63,12 @@ bool Aws::begin()
     delay(100);
   }
 
+  const int connectedColor[3]{0x00, 0xa0, 0x20};
+  statusPixel.pixelWrite(connectedColor);
+
   if (!client.connected())
   {
-    Serial.println("AWS IoT Timeout!");
+    Serial.println("<AWS> IoT Timeout!");
     return false;
   }
 
@@ -71,26 +76,27 @@ bool Aws::begin()
   client.subscribe(SHADOW_UPDATE_DELTA_TOPIC);
   client.subscribe(SHADOW_UPDATE_ACCEPTED_TOPIC);
 
-  reportDeviceState();
+  statusPixel.pixelWrite(colors::GREEN);
 
   return true;
 };
 
 void Aws::reportDeviceState()
 {
-  auto deviceState = StaticJsonDocument<100>();
+  auto deviceState = StaticJsonDocument<512>();
   auto reported = deviceState.createNestedObject("state").createNestedObject("reported");
   reported["connected"] = true;
-  reported["growLightOn"] = this->state.growLightOn;
+  this->state.toJSON(reported);
 
-  char msgBuffer[200];
+  char msgBuffer[512];
   serializeJson(deviceState, msgBuffer); // print to client
-  client.publish(SHADOW_SEND_UPDATE_TOPIC, msgBuffer);
+  if (client.publish(SHADOW_SEND_UPDATE_TOPIC, msgBuffer))
+    lastPushedStateVersion = this->state.version;
 };
 
 void Aws::messageHandler(String &topic, String &payload)
 {
-  Serial.println("incoming: " + topic + " - " + payload);
+  Serial.println("<AWS> Msg on topic: \"" + topic + "\" - " + payload);
   DynamicJsonDocument doc(1024);
   deserializeJson(doc, payload);
   JsonObject root = doc["state"].as<JsonObject>();
@@ -102,9 +108,8 @@ void Aws::messageHandler(String &topic, String &payload)
 
 void Aws::handleDelta(JsonObject delta)
 {
-  Serial.println("Handling incoming delta");
+  Serial.println("<AWS> Applying incoming delta");
   this->state.applyJSON(delta);
-  reportDeviceState();
 }
 
 template <size_t T>
@@ -112,7 +117,7 @@ StaticJsonDocument<T> Aws::createMessage()
 {
   StaticJsonDocument<T> doc;
   doc["time"] = getCurrentTime();
-  doc["device_id"] = deviceIdStr();
+  doc["device_id"] = THINGNAME;
   doc["uptime"] = (int)(millis() / 1000);
   doc["rand_number"] = rand();
   doc["wifi_rssi"] = wifi.getRSSI();
@@ -124,7 +129,7 @@ bool Aws::publishMessage(String topic, StaticJsonDocument<T> doc)
 {
   char jsonBuffer[T];
   serializeJson(doc, jsonBuffer); // print to client
-  Serial.println("AWS :: Publish :: " + topic);
+  Serial.println("<AWS> Publish :: " + topic);
   return client.publish(topic, jsonBuffer);
 }
 
@@ -145,7 +150,7 @@ void Aws::sendEnvUpdate()
 
       if (!publishMessage(AWS_IOT_SENSOR_TOPIC, msg))
       {
-        Serial.println("AWS :: Sensor readings failed to publish");
+        Serial.println("<AWS> Sensor readings failed to publish");
       }
     }
     nextMQTTPush = millis() + SENSOR_PUBLISH_INTERVAL;
@@ -162,8 +167,15 @@ void Aws::loop()
       disconnected = true;
       statusPixel.pixelFlash(colors::RED);
       statusPixel.pixelWrite(colors::RED);
+      Serial.print("<AWS> Disconnected: ");
+      Serial.println(client.lastError());
     }
     return;
+  }
+  if (lastPushedStateVersion < this->state.version)
+  {
+    Serial.println("<AWS> Reporting changed device state: " + String(this->state.version));
+    this->reportDeviceState();
   }
   sendEnvUpdate();
 }

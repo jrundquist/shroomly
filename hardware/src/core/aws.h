@@ -10,13 +10,16 @@
 #include "../core/storage.h"
 #include "../core/device_state.h"
 #include "../include/common.h"
-#include "../include/files.h"
 
 #define THINGNAME "shroomly_proto_00"
 #define AWS_ENDPOINT "a3feb25p4t37j5-ats.iot.us-west-2.amazonaws.com"
 
+#define AWS_ROOT_CA "/certs/root.pem"
+#define AWS_DEVICE_CERT String("/certs/") + String(THINGNAME) + String(".cert.pem")
+#define AWS_DEVICE_PRIVATE_KEY String("/certs/") + String(THINGNAME) + String(".private.key")
+
 // The MQTT topics that this device will publish/subscribe to.
-#define AWS_IOT_SENSOR_TOPIC String(F("shroomly/")) + deviceIdStr() + String(F("/sensors"))
+#define AWS_IOT_SENSOR_TOPIC String(F("shroomly/")) + String(THINGNAME) + String(F("/sensors"))
 #define SENSOR_PUBLISH_INTERVAL 60000 /** 1 Minute */
 
 #define LWT_TOPIC (String("republish/things/") + String(THINGNAME) + String(F("/shadow/update"))).c_str()
@@ -69,6 +72,7 @@ private:
   void handleDelta(JsonObject delta);
 
   DeviceState state;
+  unsigned long lastPushedStateVersion = 0;
 };
 
 extern Aws aws;

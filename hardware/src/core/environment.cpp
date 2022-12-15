@@ -67,28 +67,14 @@ void Environment::init()
   }
 }
 
+unsigned long lastUpdatedVersion;
 void Environment::loop(DeviceState state)
 {
-
-  if (state.growLightOn)
+  if (state.version != lastUpdatedVersion)
   {
-    analogWrite(GROW_LIGHT_PIN, 0x88);
-  }
-  else
-  {
-    analogWrite(GROW_LIGHT_PIN, 0x00);
-  }
-
-  if (isControllingHumidity)
-  {
-    if (millis() >= nextFanStateChange)
-    {
-      auto speed = isFanOn ? OFF : fanOnSpeed;
-      auto inThisStateFor = isFanOn ? fanOffForTime : fanOnForTime;
-      nextFanStateChange = millis() + inThisStateFor;
-      isFanOn = !isFanOn;
-      analogWrite(HUMIDIFIER_FAN_PIN, speed);
-    }
+    analogWrite(GROW_LIGHT_PIN, state.growLightOn ? 0xFF : 0x00);
+    analogWrite(HUMIDIFIER_FAN_PIN, state.fanOn ? 0xFF : 0x00);
+    analogWrite(HUMIDIFIER_PIN, state.humidifierOn ? 0xFF : 0x00);
   }
 
   if (millis() > nextSensorRead)

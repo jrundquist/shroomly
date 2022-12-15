@@ -4,6 +4,7 @@
 #include "../include/pins.h"
 #include "./water_level.h"
 #include "./device_state.h"
+#include "./status_pixel.h"
 
 #define ENV_SENSOR_READ_INTERVAL 60000 /** 1 Minute */
 

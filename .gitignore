@@ -58,10 +58,7 @@ amplifytools.xcconfig
 #amplify-do-not-edit-end
 
 # Application Specific
-hardware/data/certs/device.crt
-hardware/data/certs/device.key
-hardware/data/certs/root.pem
-secrets.h
+hardware/data/certs
 
 # package directories
 node_modules
