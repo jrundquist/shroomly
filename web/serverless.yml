@@ -22,7 +22,7 @@ frameworkVersion: "3"
 
 provider:
   name: aws
-  runtime: nodejs14.x
+  runtime: nodejs18.x
   region: ${opt:region, 'us-west-2'}
   stage: ${opt:stage, 'dev'}
   memorySize: 512
@@ -58,6 +58,22 @@ plugins:
   - serverless-offline-local-authorizers-plugin
 
 functions:
+  UpdateDevice:
+    handler: functions/device.updateShadow
+    role: IoTLambdaRole
+    events:
+      - http:
+          path: /shadow/update
+          method: POST
+          cors: true
+          localAuthorizer:
+            type: COGNITO_USER_POOLS
+            name: "localAuthProxyFn"
+            IdentitySource: "Authorization"
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ShroomlyApiGatewayAuthorizer
+
   AuthTest:
     handler: lambda.testAuth
     role: ShroomlyLambdaRole
@@ -79,10 +95,6 @@ functions:
     events:
       - http:
           path: /
-          method: any
-          cors: true
-      - http:
-          path: /{any+}
           method: any
           cors: true
 
@@ -360,6 +372,18 @@ resources:
         UserPoolId:
           Ref: "ShroomlyCognitoUserPool"
 
+    # ShroomlyIdentityPool:
+    #   Type: AWS::Cognito::IdentityPool
+    #   Properties:
+    #     IdentityPoolName: Shroomly
+    #     AllowClassicFlow: true
+    #     AllowUnauthenticatedIdentities: true
+    #     CognitoEvents: Json
+    #     CognitoIdentityProviders:
+    #       - CognitoIdentityProvider
+    #     CognitoStreams:
+    #       CognitoStreams
+
     # Customize the API Gateway resource
     ApiGatewayRestApi:
       Type: AWS::ApiGateway::RestApi
@@ -377,6 +401,22 @@ resources:
         ProviderARNs:
           - Fn::GetAtt: [ShroomlyCognitoUserPool, Arn]
         IdentitySource: method.request.header.Authorization
+
+    # Lambda Execution Role For IoT updates
+    IoTLambdaRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: IoTLambdaRole
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service:
+                  - lambda.amazonaws.com
+              Action: sts:AssumeRole
+        ManagedPolicyArns:
+          - "arn:aws:iam::aws:policy/AWSIoTDataAccess"
 
     # Lambda Execution Role
     ShroomlyLambdaRole:

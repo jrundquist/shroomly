@@ -3,6 +3,7 @@ import "./App.css";
 import * as React from "react";
 
 import useConfig from "./components/useConfig";
+import { Device } from "./components/Device";
 import { Auth } from "aws-amplify";
 import { Authenticator } from "@aws-amplify/ui-react";
 
@@ -47,6 +48,8 @@ export default function App() {
           <h1>Hello {user!.username}</h1>
           <button onClick={signOut}>Sign out</button>
           <HitTest />
+          <hr />
+          <Device deviceId="shroomly_proto_00" />
         </main>
       )}
     </Authenticator>

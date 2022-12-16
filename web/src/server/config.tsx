@@ -31,10 +31,12 @@ const config = {
 
   awsConfig: {
     aws_project_region: String(process.env.SERVERLESS_REGION),
-    //aws_cognito_identity_pool_id: "us-west-1:117565975709:userpool/us-west-1_eS4RMawSr",
+    // TODO - add to CloudFormation rule
+    aws_cognito_identity_pool_id: "us-west-2:75405be1-30b5-40ed-b57b-424a4dc7a6d3",
+    aws_mqtt_app: "a3feb25p4t37j5-ats",
     aws_cognito_region: String(process.env.SERVERLESS_REGION),
-    aws_user_pools_id: isLocal ? "us-west-1_pXB4EB06q" : String(process.env.USER_POOL_ID),
-    aws_user_pools_web_client_id: isLocal ? "3vncjashfa2ubau8pl05bm9c6q" : String(process.env.USER_POOL_CLIENT_ID),
+    aws_user_pools_id: isLocal ? "us-west-2_Q6q3bLOAl" : String(process.env.USER_POOL_ID),
+    aws_user_pools_web_client_id: isLocal ? "6ji83vbnqr1bjibdq7ise7gra0" : String(process.env.USER_POOL_CLIENT_ID),
     // OPTIONAL - Hosted UI configuration
     oauth: {
       domain: "http://localhost:9229",
