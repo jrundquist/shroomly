@@ -11,7 +11,7 @@ namespace
   bool hasWater = false;
   bool hasScd30 = false;
 
-  uint8_t fanOnSpeed = 0xff;
+  uint8_t fanOnSpeed = ON;
 
   bool isControllingHumidity = false;
   unsigned long nextFanStateChange = 1000; // Dont start the fan immediately
@@ -72,9 +72,12 @@ void Environment::loop(DeviceState state)
 {
   if (state.version != lastUpdatedVersion)
   {
-    analogWrite(GROW_LIGHT_PIN, state.growLightOn ? 0xFF : 0x00);
-    analogWrite(HUMIDIFIER_FAN_PIN, state.fanOn ? 0xFF : 0x00);
-    analogWrite(HUMIDIFIER_PIN, state.humidifierOn ? 0xFF : 0x00);
+    analogWrite(GROW_LIGHT_PIN, state.growLightOn ? ON : OFF);
+    if (!state.autoCo2)
+    {
+      analogWrite(HUMIDIFIER_FAN_PIN, state.fanOn ? ON : OFF);
+    }
+    analogWrite(HUMIDIFIER_PIN, state.humidifierOn ? ON : OFF);
   }
 
   if (millis() > nextSensorRead)
@@ -101,6 +104,18 @@ void Environment::loop(DeviceState state)
         // return;
       }
       this->_latest_read_ts = getCurrentTime();
+    }
+  }
+
+  if (successfulyReadCO2 && state.autoCo2)
+  {
+    if (this->getCO2() >= MAX_CO2_LEVEL)
+    {
+      analogWrite(HUMIDIFIER_FAN_PIN, ON);
+    }
+    else if (this->getCO2() <= MIN_CO2_LEVEL)
+    {
+      analogWrite(HUMIDIFIER_FAN_PIN, OFF);
     }
   }
 }

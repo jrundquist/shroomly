@@ -3,6 +3,7 @@ import "./App.css";
 import * as React from "react";
 
 import useConfig from "./components/useConfig";
+import { Timeline } from "./components/Timeline";
 import { Device } from "./components/Device";
 import { Auth } from "aws-amplify";
 import { Authenticator } from "@aws-amplify/ui-react";
@@ -21,7 +22,7 @@ function HitTest() {
         cache: "no-cache",
         credentials: "same-origin",
         body: JSON.stringify({ hello: "world" }),
-        headers: { Authorization: session.idToken.jwtToken },
+        headers: { Authorization: session.getIdToken().getJwtToken() },
       }).then((req) => {
         req.json().then((js) => setRes(JSON.stringify(js)));
       });
@@ -50,6 +51,7 @@ export default function App() {
           <HitTest />
           <hr />
           <Device deviceId="shroomly_proto_00" />
+          <Timeline width={600} height={400} deviceId="shroomly_proto_00" />
         </main>
       )}
     </Authenticator>

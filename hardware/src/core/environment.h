@@ -8,9 +8,12 @@
 
 #define ENV_SENSOR_READ_INTERVAL 60000 /** 1 Minute */
 
+#define MAX_CO2_LEVEL 8000
+#define MIN_CO2_LEVEL 6000
+
 namespace
 {
-  const uint8_t ON = 0xff;
+  const uint8_t ON = 0xFF;
   const uint8_t OFF = 0x00;
 }
 

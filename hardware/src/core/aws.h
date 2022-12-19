@@ -11,7 +11,7 @@
 #include "../core/device_state.h"
 #include "../include/common.h"
 
-#define THINGNAME "shroomly_proto_00"
+#define THINGNAME "shroomly_proto_01"
 #define AWS_ENDPOINT "a3feb25p4t37j5-ats.iot.us-west-2.amazonaws.com"
 
 #define AWS_ROOT_CA "/certs/root.pem"
