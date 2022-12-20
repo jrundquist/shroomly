@@ -42,6 +42,8 @@ void setup()
     wifi.startAP();
     Serial.print("Access Point: ");
     Serial.println(AP_SSID);
+
+    display.showAPInfo(AP_SSID, WiFi.softAPIP().toString());
   }
   else
   {
@@ -94,5 +96,8 @@ void loop()
 {
   environment.loop(aws.getState());
   aws.loop();
-  display.showEnviroment(environment);
+  if (setupComplete)
+  {
+    display.showEnviroment(environment);
+  }
 }

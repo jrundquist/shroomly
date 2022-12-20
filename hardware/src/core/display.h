@@ -13,6 +13,7 @@ class Display
 public:
   void init();
   void showEnviroment(Environment &env);
+  void showAPInfo(String ssid, String ip);
   void clear();
 
 private:

@@ -60,6 +60,21 @@ void Display::showEnviroment(Environment &env)
 #endif
 }
 
+void Display::showAPInfo(String ssid, String ip)
+{
+#ifdef ARDUINO_ADAFRUIT_FEATHER_ESP32S2_TFT
+  canvas.fillScreen(ST77XX_BLACK);
+  canvas.setCursor(0, 18);
+  canvas.setTextColor(ST77XX_WHITE);
+  canvas.println("SSID : " + ssid);
+
+  canvas.println("IP: " + ip);
+
+  disp.drawRGBBitmap(0, 0, canvas.getBuffer(), 240, 135);
+  display.turnOnBacklight();
+#endif
+}
+
 void Display::turnOnBacklight()
 {
 #ifdef TFT_BACKLITE
