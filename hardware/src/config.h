@@ -2,6 +2,8 @@
 
 #include "stddef.h"
 
+#define THINGNAME "shroomly_proto_01"
+
 #define NTP_SERVER "pool.ntp.org"
 
 #define HOSTNAME "SHROOMLY"

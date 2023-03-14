@@ -6,7 +6,6 @@ void setup()
 {
 
   Serial.begin(115200);
-  delay(1000);
   Serial.println();
 
   Serial.println("Display Init");
@@ -39,11 +38,7 @@ void setup()
   {
     Serial.println("No wifi creds. Starting Access point.");
     statusPixel.pixelWrite(colors::BLUE);
-    wifi.startAP();
-    Serial.print("Access Point: ");
-    Serial.println(AP_SSID);
-
-    display.showAPInfo(AP_SSID, WiFi.softAPIP().toString());
+    // Enter setup mode
   }
   else
   {
@@ -87,17 +82,14 @@ void setup()
       ESP.restart();
     }
   }
-
-  Serial.println("http init");
-  http.init();
 }
 
 void loop()
 {
-  environment.loop(aws.getState());
-  aws.loop();
   if (setupComplete)
   {
+    environment.loop(aws.getState());
+    aws.loop();
     display.showEnviroment(environment);
   }
 }
