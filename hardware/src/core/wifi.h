@@ -5,6 +5,20 @@
 #include <WiFi.h>
 #include "../include/common.h"
 #include "../core/status_pixel.h"
+#include "../core/config.h"
+
+// Includes for BLE
+#include <BLEUtils.h>
+#include <BLEServer.h>
+#include <BLEDevice.h>
+#include <BLEAdvertising.h>
+
+#include <ArduinoJson.h>
+
+// List of Service and Characteristic UUIDs
+#define SERVICE_UUID "00010ad1-b808-499e-9379-c9ae7c86611e"
+#define STATUS_UUID "00001111-b808-499e-9379-c9ae7c86611e"
+#define WIFI_UUID "00005555-b808-499e-9379-c9ae7c86611e"
 
 class Wifi
 {
@@ -12,7 +26,7 @@ public:
   void init();
   void startAP();
   void stopAP();
-  void connect(String ssid = "", String pass = "");
+  void connect();
   void disconnect();
 
   int getMode();
@@ -27,6 +41,8 @@ public:
   void scanDelete();
   int getChannel(int n);
   int getEncryptionType(int n);
+
+  void startBluetoothPairing();
 
   String getSSID();
   String getSSID(int n);

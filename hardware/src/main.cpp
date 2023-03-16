@@ -36,15 +36,15 @@ void setup()
 
   if (!config.hasWifiCredentials())
   {
-    Serial.println("No wifi creds. Starting Access point.");
+    Serial.println("No wifi creds.");
     statusPixel.pixelWrite(colors::BLUE);
     // Enter setup mode
+    wifi.startBluetoothPairing();
   }
   else
   {
     Serial.println("WiFi creds found.");
-    auto creds = config.getWifiCredentials();
-    wifi.connect(creds.first, creds.second);
+    wifi.connect();
 
     if (wifi.getStatus() == WL_CONNECTED)
     {
@@ -78,7 +78,7 @@ void setup()
     {
       Serial.println("Wifi Creds didn't work?");
       Serial.println("Clearing credentials and restarting....");
-      // config.clearWifiCredentials();
+      config.clearWifiCredentials();
       ESP.restart();
     }
   }
