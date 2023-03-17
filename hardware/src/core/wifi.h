@@ -15,11 +15,13 @@
 
 #include <ArduinoJson.h>
 
-// List of Service and Characteristic UUIDs
+// List of Service UUIDs
 #define SERVICE_UUID "00010ad1-b808-499e-9379-c9ae7c86611e"
+// Characteristic UUIDs
 #define STATUS_UUID "00001111-b808-499e-9379-c9ae7c86611e"
 #define WIFI_UUID "00005555-b808-499e-9379-c9ae7c86611e"
 
+#define MAX_CONNECTION_ATTEMPTS 10
 class Wifi
 {
 public:
@@ -48,6 +50,8 @@ public:
   String getSSID(int n);
   String getBSSIDstr(int n);
   IPAddress getLocalIp();
+
+  void loop();
 };
 
 extern Wifi wifi;

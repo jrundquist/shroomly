@@ -2,6 +2,9 @@
 
 char apName[] = THINGNAME;
 
+bool isAttemptingToConnect = false;
+bool credsSetTryConnect = false;
+
 /**
  * Create unique device name from MAC address
  **/
@@ -56,12 +59,13 @@ void setStatusCharacteristic()
   String status;
   /** Json object for outgoing data */
   DynamicJsonDocument jsonOut(48);
-  jsonOut["status"] = wifi.getStatus() == WL_CONNECTED ? "OK" : "DISCONNECTED";
+  jsonOut["status"] = isAttemptingToConnect ? "CONNECTING" : (wifi.getStatus() == WL_CONNECTED ? "OK" : "DISCONNECTED");
   // Convert JSON object into a string
   serializeJson(jsonOut, status);
-  Serial.println("Current status: " + status);
+  Serial.println("Sending status: " + status);
   pCharacteristicStatus->setValue((uint8_t *)&status[0], status.length());
-}
+  pCharacteristicStatus->notify();
+};
 
 /**
  * StatusCallbackHandler
@@ -74,13 +78,18 @@ class StatusCallbackHandler : public BLECharacteristicCallbacks
     Serial.println("WiFi Status onRead request");
     setStatusCharacteristic();
   };
+
+  void onNotify(BLECharacteristic *pCharacteristic)
+  {
+    Serial.println("WiFi Status onNotify request");
+  };
 };
 
 /**
- * MyCallbackHandler
+ * WifiCredsCallbackHandler
  * Callbacks for BLE client read/write requests
  */
-class MyCallbackHandler : public BLECharacteristicCallbacks
+class WifiCredsCallbackHandler : public BLECharacteristicCallbacks
 {
   void onWrite(BLECharacteristic *pCharacteristic)
   {
@@ -119,7 +128,7 @@ class MyCallbackHandler : public BLECharacteristicCallbacks
         Serial.println("Received over bluetooth:");
         Serial.println("primary SSID: " + ssid + " password: " + pw);
 
-        wifi.connect();
+        credsSetTryConnect = true;
 
         // Once setup is complete, reboot the device.
       }
@@ -197,13 +206,13 @@ void initBLE()
   // Create BLE Characteristic for WiFi settings
   pCharacteristicWiFi = pService->createCharacteristic(
       BLEUUID(WIFI_UUID),
-      BLECharacteristic::PROPERTY_READ |
-          BLECharacteristic::PROPERTY_WRITE);
-  pCharacteristicWiFi->setCallbacks(new MyCallbackHandler());
+      BLECharacteristic::PROPERTY_WRITE);
+  pCharacteristicWiFi->setCallbacks(new WifiCredsCallbackHandler());
 
   pCharacteristicStatus = pService->createCharacteristic(
       BLEUUID(STATUS_UUID),
-      BLECharacteristic::PROPERTY_READ);
+      BLECharacteristic::PROPERTY_READ |
+          BLECharacteristic::PROPERTY_NOTIFY);
   pCharacteristicStatus->setCallbacks(new StatusCallbackHandler());
 
   // Start the service
@@ -271,6 +280,8 @@ void Wifi::startBluetoothPairing()
 void Wifi::connect()
 {
   WiFi.mode(WIFI_STA);
+  isAttemptingToConnect = true;
+  setStatusCharacteristic();
   if (WiFi.status() == WL_CONNECTED)
   {
     WiFi.disconnect();
@@ -278,21 +289,31 @@ void Wifi::connect()
   // Connect to WPA/WPA2 network:
   auto cfg = config.getWifiCredentials();
   auto status = WiFi.begin(cfg.first.c_str(), cfg.second.c_str());
-  Serial.print("Connecting to `");
+  Serial.print("[connect] Connecting to `");
   Serial.print(cfg.first.c_str());
   Serial.print("` with password `");
   Serial.print(cfg.second.c_str());
   Serial.println("`");
-  int attempts = 10;
-  do
+  int attempts = MAX_CONNECTION_ATTEMPTS;
+  while (((status == WL_DISCONNECTED) || (status == WL_IDLE_STATUS)) && (--attempts > 0))
   {
-    delay(1000 + (20 - attempts) * 500);
+    Serial.println("[connect] status - " + String(status));
+    setStatusCharacteristic();
+    Serial.println("[connect] delaying - " + String(1000 + (20 - attempts) * 500));
+    delay(1000 + (MAX_CONNECTION_ATTEMPTS - attempts) * 500);
     status = WiFi.status();
-    Serial.print(status);
-    Serial.print(" - ");
-    Serial.print(attempts);
-    Serial.println(" attempts remaining.");
-  } while (((status == WL_DISCONNECTED) || (status == WL_IDLE_STATUS)) && (--attempts > 0));
+  };
+  if (status == WL_CONNECTED)
+  {
+    Serial.println("[connect] Connected");
+    Serial.print("[connect] IP address: ");
+    Serial.println(WiFi.localIP());
+  }
+  else
+  {
+    Serial.println("[connect] Failed to connect");
+  }
+  isAttemptingToConnect = false;
   setStatusCharacteristic();
 }
 
@@ -380,4 +401,13 @@ String Wifi::getBSSIDstr(int n)
 IPAddress Wifi::getLocalIp()
 {
   return WiFi.localIP();
+}
+
+void Wifi::loop()
+{
+  if (credsSetTryConnect)
+  {
+    credsSetTryConnect = false;
+    connect();
+  }
 }

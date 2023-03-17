@@ -4,7 +4,6 @@ bool setupComplete = false;
 
 void setup()
 {
-
   Serial.begin(115200);
   Serial.println();
 
@@ -30,6 +29,9 @@ void setup()
 
   Serial.println("config init");
   config.init();
+
+  // TODO - remove this
+  config.clearWifiCredentials();
 
   Serial.println("camera init");
   camera.init();
@@ -86,6 +88,8 @@ void setup()
 
 void loop()
 {
+  wifi.loop();
+
   if (setupComplete)
   {
     environment.loop(aws.getState());
