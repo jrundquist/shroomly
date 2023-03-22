@@ -11,6 +11,16 @@ void Config::init()
   }
 }
 
+void Config::setPairingInitiator(String pairingInitiator)
+{
+  preferences.putString(PAIRING_INITIATOR_KEY, pairingInitiator.c_str());
+}
+
+String Config::getPairingInitiator()
+{
+  preferences.getString(PAIRING_INITIATOR_KEY, String(""))
+}
+
 bool Config::hasWifiCredentials()
 {
   auto creds = this->getWifiCredentials();

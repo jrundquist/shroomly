@@ -7,6 +7,7 @@ namespace
   const char *kFanOnKey = "fanOn";
   const char *kHumidifierOnKey = "humidifierOn";
   const char *kAutoCo2Control = "autoCo2";
+  const char *kOwner = "pairingState";
 }
 
 struct DeviceState
@@ -15,6 +16,7 @@ struct DeviceState
   bool fanOn;
   bool humidifierOn;
   bool autoCo2;
+  String owner = "";
 
   unsigned long version = 1;
 
@@ -68,6 +70,18 @@ struct DeviceState
         version++;
       }
     }
+
+    if (doc.containsKey(kOwner))
+    {
+      if (doc[kOwner] != owner)
+      {
+        auto val = doc[kOwner];
+        owner = String(val.as<const char *>());
+        Serial.print("<Device State> Owner is now: ");
+        Serial.println(owner);
+        version++;
+      }
+    }
   }
 
   void toJSON(JsonObject doc)
@@ -76,5 +90,6 @@ struct DeviceState
     doc[kFanOnKey] = fanOn;
     doc[kHumidifierOnKey] = humidifierOn;
     doc[kAutoCo2Control] = autoCo2;
+    doc[kOwner] = owner;
   }
 };

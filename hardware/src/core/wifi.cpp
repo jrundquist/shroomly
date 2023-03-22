@@ -5,6 +5,10 @@ char apName[] = THINGNAME;
 bool isAttemptingToConnect = false;
 bool credsSetTryConnect = false;
 
+bool bleEnabled = false;
+bool hasReceivedInitiator = false;
+bool hasRecevedWifiCredentials = false;
+
 /**
  * Create unique device name from MAC address
  **/
@@ -22,6 +26,7 @@ Wifi wifi;
 /** Characteristic for digital output */
 BLECharacteristic *pCharacteristicWiFi;
 BLECharacteristic *pCharacteristicStatus;
+BLECharacteristic *pCharacteristicDeviceInfo;
 /** BLE Advertiser */
 BLEAdvertising *pAdvertising;
 /** BLE Service */
@@ -56,10 +61,27 @@ class MyServerCallbacks : public BLEServerCallbacks
 
 void setStatusCharacteristic()
 {
+  if (!bleEnabled)
+    return;
   String status;
   /** Json object for outgoing data */
   DynamicJsonDocument jsonOut(48);
-  jsonOut["status"] = isAttemptingToConnect ? "CONNECTING" : (wifi.getStatus() == WL_CONNECTED ? "OK" : "DISCONNECTED");
+  if (!hasReceivedInitiator)
+  {
+    jsonOut["status"] = "AWAITING_PAIRING_INITIATOR";
+  }
+  else if (!hasRecevedWifiCredentials)
+  {
+    jsonOut["status"] = "AWAITING_WIFI_CREDENTIALS";
+  }
+  else if (isAttemptingToConnect)
+  {
+    jsonOut["status"] = "CONNECTING";
+  }
+  else
+  {
+    jsonOut["status"] = wifi.getStatus() == WL_CONNECTED ? "OK" : "DISCONNECTED";
+  }
   // Convert JSON object into a string
   serializeJson(jsonOut, status);
   Serial.println("Sending status: " + status);
@@ -117,6 +139,16 @@ class WifiCredsCallbackHandler : public BLECharacteristicCallbacks
 
     if (!error)
     {
+      if (doc.containsKey("initiator"))
+      {
+        auto initiator = doc["initiator"].as<String>();
+        hasReceivedInitiator = true;
+
+        Serial.println("Pairing Initiator: " + initiator);
+        config.setPairingInitiator(String(initiator));
+        hasReceivedInitiator = true;
+        setStatusCharacteristic();
+      }
       if (doc.containsKey("ssid") &&
           doc.containsKey("pass"))
       {
@@ -128,6 +160,7 @@ class WifiCredsCallbackHandler : public BLECharacteristicCallbacks
         Serial.println("Received over bluetooth:");
         Serial.println("primary SSID: " + ssid + " password: " + pw);
 
+        hasRecevedWifiCredentials = true;
         credsSetTryConnect = true;
 
         // Once setup is complete, reboot the device.
@@ -181,6 +214,31 @@ class WifiCredsCallbackHandler : public BLECharacteristicCallbacks
 };
 
 /**
+ * DeviceInfoCallbackHandler
+ * Callbacks for BLE client read requests for the device info
+ */
+class DeviceInfoCallbackHandler : public BLECharacteristicCallbacks
+{
+  void onRead(BLECharacteristic *pCharacteristic)
+  {
+    Serial.println("Device info onRead request");
+    String deviceInfo;
+
+    /** Json object for outgoing data */
+    DynamicJsonDocument jsonOut(1024);
+    jsonOut["name"] = apName;
+    jsonOut["deviceID"] = THINGNAME;
+    jsonOut["build"] = __DATE__ "_" __TIME__;
+    jsonOut["version"] = FW_VERSION;
+    // Convert JSON object into a string
+    serializeJson(jsonOut, deviceInfo);
+
+    pCharacteristicDeviceInfo->setValue((uint8_t *)&deviceInfo[0], deviceInfo.length());
+    jsonBuffer.clear();
+  };
+};
+
+/**
  * initBLE
  * Initialize BLE service and characteristic
  * Start BLE server and service advertising
@@ -209,11 +267,18 @@ void initBLE()
       BLECharacteristic::PROPERTY_WRITE);
   pCharacteristicWiFi->setCallbacks(new WifiCredsCallbackHandler());
 
+  // Create BLE Characteristic for WiFi status
   pCharacteristicStatus = pService->createCharacteristic(
       BLEUUID(STATUS_UUID),
       BLECharacteristic::PROPERTY_READ |
           BLECharacteristic::PROPERTY_NOTIFY);
   pCharacteristicStatus->setCallbacks(new StatusCallbackHandler());
+
+  // Create BLE Characteristic for Device Info
+  pCharacteristicDeviceInfo = pService->createCharacteristic(
+      BLEUUID(DEVICE_INFO_UUID),
+      BLECharacteristic::PROPERTY_READ);
+  pCharacteristicDeviceInfo->setCallbacks(new DeviceInfoCallbackHandler());
 
   // Start the service
   pService->start();
@@ -230,6 +295,8 @@ void initBLE()
   pAdvertising->start();
   Serial.println("BLE advertising started");
   Serial.println(apName);
+
+  bleEnabled = true;
 }
 
 void Wifi::init()
@@ -242,7 +309,7 @@ void Wifi::init()
   WiFi.config(ip, gateway, subnet);
 #endif
   WiFi.hostname(HOSTNAME);
-  initBLE();
+  // initBLE();
 }
 
 void Wifi::startAP()
