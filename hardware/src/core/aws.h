@@ -23,6 +23,7 @@
 
 #define LWT_TOPIC (String("republish/things/") + String(THINGNAME) + String(F("/shadow/update"))).c_str()
 
+// The Shadow topics that this device will publish/subscribe to.
 #define _SHADOW_PREFIX String(F("$aws/things/")) + String(THINGNAME) + String(F("/shadow"))
 #define SHADOW_SEND_GET_TOPIC _SHADOW_PREFIX + String(F("/get"))
 #define SHADOW_GET_ACCEPTED_TOPIC _SHADOW_PREFIX + String(F("/get/accepted"))
@@ -30,6 +31,13 @@
 #define SHADOW_SEND_UPDATE_TOPIC (_SHADOW_PREFIX + String(F("/update"))).c_str()
 #define SHADOW_UPDATE_ACCEPTED_TOPIC (_SHADOW_PREFIX + String(F("/update/accepted"))).c_str()
 #define SHADOW_UPDATE_DELTA_TOPIC (_SHADOW_PREFIX + String(F("/update/delta"))).c_str()
+
+// The Image topics that this device will publish/subscribe to.
+// These topics do not contain the image data itself, since it will exceed the 126Kb limit of MQTT.
+// Instead, a message is sent to the image topic, will initiate a lambda that generates a Signed S3 URL for the image to be uploaded to.
+// The URL will come back on the accepted topic, and the image will be uploaded to S3.
+#define IMAGE_UPLOAD_TOPIC String(F("shroomly/")) + String(THINGNAME) + String(F("/image"))
+#define IMAGE_UPLOAD_ACCEPTED_TOPIC String(F("shroomly/")) + String(THINGNAME) + String(F("/image/accepted"))
 
 class Aws
 {

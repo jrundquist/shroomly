@@ -2,6 +2,8 @@
 
 bool setupComplete = false;
 
+WebServer server(80);
+
 void setup()
 {
   Serial.begin(115200);
@@ -30,9 +32,6 @@ void setup()
   Serial.println("config init");
   config.init();
 
-  // TODO - remove this
-  config.clearWifiCredentials();
-
   Serial.println("camera init");
   camera.init();
 
@@ -41,6 +40,7 @@ void setup()
     Serial.println("No wifi creds.");
     statusPixel.pixelWrite(colors::BLUE);
     // Enter setup mode
+    ESP.restart();
     wifi.startBluetoothPairing();
   }
   else
@@ -80,7 +80,7 @@ void setup()
     {
       Serial.println("Wifi Creds didn't work?");
       Serial.println("Clearing credentials and restarting....");
-      config.clearWifiCredentials();
+      // config.clearWifiCredentials();
       ESP.restart();
     }
   }
@@ -93,7 +93,8 @@ void loop()
   if (setupComplete)
   {
     environment.loop(aws.getState());
-    aws.loop();
+    camera.loop();
     display.showEnviroment(environment);
+    aws.loop();
   }
 }

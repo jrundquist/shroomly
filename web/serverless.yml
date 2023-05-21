@@ -77,6 +77,21 @@ functions:
           authorizer:
             type: COGNITO_USER_POOLS
             authorizerId: !Ref ShroomlyApiGatewayAuthorizer
+  UploadImage:
+    handler: functions/images.uploadPost
+    role: IoTLambdaRole
+    events:
+      - http:
+          path: /cam/upload
+          method: PUT
+          cors: true
+          localAuthorizer:
+            type: COGNITO_USER_POOLS
+            name: "localAuthProxyFn"
+            IdentitySource: "Authorization"
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: !Ref ShroomlyApiGatewayAuthorizer
   InitiateImgUpload:
     handler: functions/images.initiateUpload
     role: IoTImageLambdaRole

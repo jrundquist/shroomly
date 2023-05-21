@@ -18,7 +18,7 @@ void Config::setPairingInitiator(String pairingInitiator)
 
 String Config::getPairingInitiator()
 {
-  preferences.getString(PAIRING_INITIATOR_KEY, String(""))
+  return preferences.getString(PAIRING_INITIATOR_KEY, String(""));
 }
 
 bool Config::hasWifiCredentials()

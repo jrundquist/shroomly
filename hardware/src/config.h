@@ -5,6 +5,7 @@
 #define THINGNAME "shroomly_proto_01"
 
 #define NTP_SERVER "pool.ntp.org"
+#define FW_VERSION "0.0.1"
 
 #define HOSTNAME "SHROOMLY"
 #define AP_PASS NULL

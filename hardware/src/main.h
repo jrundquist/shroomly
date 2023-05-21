@@ -15,6 +15,8 @@
 #include "core/display.h"
 #include "core/aws.h"
 
+#include <WebServer.h>
+
 #define DEBUG
 #define WIFI_STATUS_INTERVAL 30000
 
