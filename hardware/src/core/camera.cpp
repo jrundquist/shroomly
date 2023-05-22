@@ -22,11 +22,11 @@ namespace
     // Write the image data to the output stream
     int i = 0;
     uint8_t temp = 0, temp_last = 0;
-    uint32_t length = 0;
     bool is_header = false;
 
     byte buf[256];
-    length = myCAM.read_fifo_length();
+    uint32_t length = myCAM.read_fifo_length();
+    uint32_t start_length = length;
     Serial.print(F("The fifo length is :"));
     Serial.println(length, DEC);
 
@@ -53,7 +53,6 @@ namespace
         // Write the remain bytes in the buffer
         myCAM.CS_HIGH();
         outputStream.write(buf, i);
-        Serial.println(F("Image save OK."));
         is_header = false;
         i = 0;
       }
@@ -66,7 +65,8 @@ namespace
         {
           // Write 256 bytes image data to file
           myCAM.CS_HIGH();
-          outputStream.write(buf, 256);
+          outputStream.write(buf, i);
+          Serial.println("Wrote 256 bytes [" + String(round((double(length) / double(start_length)) * 100.0)) + "%]");
           i = 0;
           buf[i++] = temp;
           myCAM.CS_LOW();
@@ -156,7 +156,7 @@ void Camera::init()
   myCAM.set_format(JPEG);
   myCAM.InitCAM();
   myCAM.set_bit(ARDUCHIP_TIM, VSYNC_LEVEL_MASK);
-  myCAM.OV5642_set_JPEG_size(OV5642_1600x1200);
+  myCAM.OV5642_set_JPEG_size(OV5642_1024x768);
 
   myCAM.flush_fifo();
   myCAM.clear_fifo_flag();
@@ -166,7 +166,10 @@ void Camera::init()
 
 void Camera::captureImage()
 {
+  this->imageId++;
   Serial.println(F("start capture."));
+  myCAM.flush_fifo();
+  myCAM.clear_fifo_flag();
   myCAM.start_capture();
   auto total_time = millis();
   while (!myCAM.get_bit(ARDUCHIP_TRIG, CAP_DONE_MASK))
@@ -184,6 +187,35 @@ uint32_t Camera::imageLength()
 
 void Camera::loop()
 {
+}
+
+void Camera::uploadImage(String url)
+{
+  // Create an HTTPClient object
+  HTTPClient http;
+
+  // Create the camera data stream
+  CameraStream cameraStream(myCAM);
+
+  // Send the PUT request
+  http.begin(url);
+  http.addHeader("Content-Type", "image/jpeg");
+
+  int httpResponseCode = http.sendRequest("PUT", &cameraStream, cameraStream.available());
+
+  // Check the response code
+  if (httpResponseCode == HTTP_CODE_OK)
+  {
+    Serial.println("Image uploaded successfully");
+  }
+  else
+  {
+    Serial.print("Image upload failed. Error code: ");
+    Serial.println(httpResponseCode);
+  }
+
+  // Disconnect and cleanup
+  http.end();
 }
 
 template <typename T>

@@ -44,7 +44,7 @@ void Environment::init()
   // Try to initialize!
   if (!scd30.begin())
   {
-    Serial.println("Failed to find SCD30 chip");
+    Serial.println("Failed to find SCD30 (Humidity+CO2+Temp) chip");
   }
   else
   {

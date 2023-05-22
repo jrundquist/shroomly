@@ -31,6 +31,7 @@ void setup()
 
   Serial.println("config init");
   config.init();
+  config.setWifiCredentials("The zone will be one of danger", "because thats how you get ants");
 
   Serial.println("camera init");
   camera.init();
@@ -84,11 +85,28 @@ void setup()
       ESP.restart();
     }
   }
+
+  pinMode(38, INPUT);
 }
+
+bool button_down = false;
 
 void loop()
 {
   wifi.loop();
+
+  if (digitalRead(38) == LOW && !button_down)
+  {
+    button_down = true;
+    Serial.println("Button Pressed");
+    camera.captureImage();
+    aws.sendImage(camera);
+  }
+  else if (digitalRead(38) == HIGH && button_down) // button released
+  {
+    Serial.println("Button Released");
+    button_down = false;
+  }
 
   if (setupComplete)
   {

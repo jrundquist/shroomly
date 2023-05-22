@@ -1,15 +1,7 @@
 import "source-map-support/register";
-import {
-  Context,
-  APIGatewayProxyResultV2,
-  APIGatewayEvent,
-  IoTEvent,
-  Callback,
-  APIGatewayProxyStructuredResultV2,
-} from "aws-lambda";
+import { Context, APIGatewayProxyResultV2, IoTEvent, Callback, APIGatewayProxyStructuredResultV2 } from "aws-lambda";
 import { randomBytes } from "crypto";
 import { Iot, IotData, S3 } from "aws-sdk";
-import { HTTPHeader } from "aws-sdk/clients/waf";
 
 const BUCKET = "shroomly-timelapse-images";
 
@@ -71,7 +63,7 @@ export async function initiateUpload(event: IoTEvent<Request>, context: Context)
   const url = s3.getSignedUrl("putObject", {
     Bucket: BUCKET,
     Key: key,
-    Expires: 60,
+    Expires: 60000,
     ContentType: contentType,
   });
 

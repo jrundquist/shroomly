@@ -96,6 +96,7 @@ void sendImageData(void)
       is_header = true;
       buf[i++] = temp_last;
       buf[i++] = temp;
+      Serial.println("Found header at: " + String(length));
     }
   }
   Serial.println("Image Sent OK");

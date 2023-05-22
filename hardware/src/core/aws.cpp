@@ -5,7 +5,7 @@ Aws aws;
 namespace
 {
   WiFiClientSecure net = WiFiClientSecure();
-  MQTTClient client = MQTTClient(1024);
+  MQTTClient client = MQTTClient(2048);
 
   bool disconnected = false;
 
@@ -75,6 +75,7 @@ bool Aws::begin()
   client.subscribe(SHADOW_GET_ACCEPTED_TOPIC);
   client.subscribe(SHADOW_UPDATE_DELTA_TOPIC);
   client.subscribe(SHADOW_UPDATE_ACCEPTED_TOPIC);
+  client.subscribe(IMAGE_UPLOAD_ACCEPTED_TOPIC);
 
   statusPixel.pixelWrite(colors::GREEN);
 
@@ -96,13 +97,20 @@ void Aws::reportDeviceState()
 
 void Aws::messageHandler(String &topic, String &payload)
 {
-  Serial.println("<AWS> Msg on topic: \"" + topic + "\" - " + payload);
-  DynamicJsonDocument doc(1024);
+  log_i("<AWS> Msg on topic: \"" + topic + "\" - " + payload);
+  DynamicJsonDocument doc(2048);
   deserializeJson(doc, payload);
   JsonObject root = doc["state"].as<JsonObject>();
   if (topic == SHADOW_UPDATE_DELTA_TOPIC)
   {
     handleDelta(root);
+  }
+
+  if (topic == IMAGE_UPLOAD_ACCEPTED_TOPIC)
+  {
+    auto url = doc["url"].as<String>();
+    log_d("<AWS> Image upload accepted: %s", url);
+    camera.uploadImage(url);
   }
 };
 
@@ -166,9 +174,16 @@ void Aws::loop()
     {
       disconnected = true;
       statusPixel.pixelFlash(colors::RED);
+      statusPixel.pixelFlash(colors::RED);
       statusPixel.pixelWrite(colors::RED);
       Serial.print("<AWS> Disconnected: ");
       Serial.println(client.lastError());
+
+      if (client.lastError() == 0)
+      {
+        Serial.println("<AWS> Reconnecting...");
+        begin();
+      }
     }
     return;
   }
@@ -178,4 +193,16 @@ void Aws::loop()
     this->reportDeviceState();
   }
   sendEnvUpdate();
+}
+
+void Aws::sendImage(Camera &camera)
+{
+  auto msg = createMessage<200>();
+  msg["timestamp"] = getCurrentTime();
+  msg["device_id"] = String(THINGNAME);
+  msg["req_id"] = camera.getImageId();
+  if (!publishMessage(IMAGE_UPLOAD_TOPIC, msg))
+  {
+    Serial.println("<AWS> Image upload failed to publish");
+  }
 }

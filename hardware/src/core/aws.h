@@ -7,6 +7,7 @@
 #include <ArduinoJson.h>
 #include "../core/environment.h"
 #include "../core/wifi.h"
+#include "../core/camera.h"
 #include "../core/storage.h"
 #include "../core/device_state.h"
 #include "../include/common.h"
@@ -36,8 +37,8 @@
 // These topics do not contain the image data itself, since it will exceed the 126Kb limit of MQTT.
 // Instead, a message is sent to the image topic, will initiate a lambda that generates a Signed S3 URL for the image to be uploaded to.
 // The URL will come back on the accepted topic, and the image will be uploaded to S3.
-#define IMAGE_UPLOAD_TOPIC String(F("shroomly/")) + String(THINGNAME) + String(F("/image"))
-#define IMAGE_UPLOAD_ACCEPTED_TOPIC String(F("shroomly/")) + String(THINGNAME) + String(F("/image/accepted"))
+#define IMAGE_UPLOAD_TOPIC String(F("shroomly/")) + String(THINGNAME) + String(F("/images"))
+#define IMAGE_UPLOAD_ACCEPTED_TOPIC String(F("shroomly/")) + String(THINGNAME) + String(F("/images/accepted")).c_str()
 
 class Aws
 {
@@ -46,6 +47,8 @@ public:
   void loop();
 
   const DeviceState getState() { return this->state; }
+
+  void sendImage(Camera &camera);
 
 private:
   /// @brief Creates a JsonDoc pre-populated with device information.

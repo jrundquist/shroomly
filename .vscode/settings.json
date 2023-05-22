@@ -12,6 +12,19 @@
   "files.associations": {
     "*.tcc": "cpp",
     "fstream": "cpp",
-    "string": "cpp"
+    "string": "cpp",
+    "array": "cpp",
+    "unordered_map": "cpp",
+    "unordered_set": "cpp",
+    "memory": "cpp",
+    "optional": "cpp",
+    "string_view": "cpp",
+    "istream": "cpp",
+    "ostream": "cpp",
+    "vector": "cpp",
+    "sstream": "cpp",
+    "streambuf": "cpp",
+    "functional": "cpp",
+    "tuple": "cpp"
   }
 }
